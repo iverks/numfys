@@ -10,8 +10,8 @@ light_mass = 1.0
 heavy_mass = 4.0
 
 curdir = Path(__file__).parent
-if True:
-    for xi in [0.8]:  # [1, 0.9, 0.8]:
+if False:
+    for xi in [1, 0.9, 0.8]:
         tic = time()
         edg = smumerix.EventDrivenGas.new_uniform_v_different_m(
             num_particles, 0.04, 0.003, xi
@@ -40,7 +40,7 @@ if True:
         toc = time()
         print(f"xi: {xi} took {toc - tic} seconds")
 
-for xi in [1, 0.9]:  # , 0.8]:
+for xi in [1, 0.9, 0.8]:
     with open(curdir / "cache" / f"energy_dev_{xi}", "r") as savefile:
         speeds = json.load(savefile)
     plt.plot(speeds["light"], label="light")
