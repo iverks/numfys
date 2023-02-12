@@ -5,6 +5,7 @@ use anyhow::{anyhow, Result};
 use nalgebra::{Point2, Vector2};
 use rand::distributions::Uniform;
 use rand::Rng;
+use rayon::prelude::*;
 use std::cmp::Ordering;
 use std::collections::BinaryHeap;
 use std::f64::consts::PI;
@@ -373,32 +374,44 @@ impl EventDrivenGas {
         }
 
         let particle = self.particles[particle_idx];
-        for (idx, other_cell) in self.particles.iter().enumerate() {
-            if idx == particle_idx {
-                continue;
+        let collisions: Vec<Option<Collision>> = self
+            .particles
+            .par_iter()
+            .enumerate()
+            .map(|(idx, other_cell)| {
+                if idx == particle_idx {
+                    return None;
+                }
+                let other = other_cell;
+                let delta_v = particle.v - other.v;
+                let delta_x = particle.x - other.x;
+                let deltaprikk = delta_v.dot(&delta_x);
+
+                if deltaprikk >= 0.0 {
+                    return None;
+                }
+
+                let d = deltaprikk.powi(2)
+                    - delta_v.dot(&delta_v)
+                        * (delta_x.dot(&delta_x) - (particle.r + other.r).powi(2));
+                if d <= 0.0 {
+                    return None;
+                }
+
+                let timestep = -(deltaprikk + d.sqrt()) / (delta_v.dot(&delta_v));
+
+                Some(Collision {
+                    time: self.cur_time + timestep,
+                    particles: (particle_idx, CollisionObject::Particle(idx)),
+                    collision_counts: (particle.collision_count, other.collision_count),
+                })
+            })
+            .collect();
+
+        for coll_opt in collisions {
+            if let Some(coll) = coll_opt {
+                self.pq.push(coll);
             }
-            let other = other_cell;
-            let delta_v = particle.v - other.v;
-            let delta_x = particle.x - other.x;
-            let deltaprikk = delta_v.dot(&delta_x);
-
-            if deltaprikk >= 0.0 {
-                continue;
-            }
-
-            let d = deltaprikk.powi(2)
-                - delta_v.dot(&delta_v) * (delta_x.dot(&delta_x) - (particle.r + other.r).powi(2));
-            if d <= 0.0 {
-                continue;
-            }
-
-            let timestep = -(deltaprikk + d.sqrt()) / (delta_v.dot(&delta_v));
-
-            self.pq.push(Collision {
-                time: self.cur_time + timestep,
-                particles: (particle_idx, CollisionObject::Particle(idx)),
-                collision_counts: (particle.collision_count, other.collision_count),
-            });
         }
     }
 
@@ -413,6 +426,10 @@ impl EventDrivenGas {
         // Get collision
         let collision = loop {
             let coll = self.pq.pop().expect("queue empty");
+            if coll.time - self.cur_time < 1e-12 {
+                continue;
+            }
+
             let first_is_valid =
                 coll.collision_counts.0 == self.particles[coll.particles.0].collision_count;
             let second_count = match coll.particles.1 {
@@ -424,10 +441,7 @@ impl EventDrivenGas {
                 break coll;
             }
         };
-        // println!("particles: {:?}", self.particles);
-        // println!("counts: {:?}", collision.collision_counts);
-        // println!("coll {:.2}, cur {:.2}", collision.time, self.cur_time);
-        assert!(collision.time > self.cur_time);
+
         // Move particles until time of collision
         self.move_particles(collision.time - self.cur_time);
         self.cur_time = collision.time;

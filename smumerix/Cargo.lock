@@ -1727,6 +1727,7 @@ dependencies = [
  "pistoncore-glutin_window",
  "pyo3",
  "rand",
+ "rayon",
 ]
 
 [[package]]
