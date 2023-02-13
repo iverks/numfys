@@ -54,6 +54,19 @@ impl PyEventDrivenGas {
         Ok(Self { lib_edg: edg })
     }
 
+    #[classmethod]
+    fn new_big_and_small(
+        _cls: &PyType,
+        num_small: i32,
+        speed: f64,
+        radius: f64,
+        xi: f64,
+    ) -> PyResult<Self> {
+        let edg = EventDrivenGas::new_big_and_small(num_small, speed, radius, xi).unwrap();
+
+        Ok(Self { lib_edg: edg })
+    }
+
     fn get_angle_off_x_axis(&self, particle_idx: usize) -> PyResult<f64> {
         let x_axis = Vector2::new(-1.0, 0.0);
         Ok(self.lib_edg.particles[particle_idx].v.angle(&x_axis))
@@ -65,6 +78,10 @@ impl PyEventDrivenGas {
 
     fn step_many(&mut self, num_steps: i32) {
         self.lib_edg.step_many(num_steps)
+    }
+
+    fn step_until_energy(&mut self, target_energy: f64) {
+        self.lib_edg.step_until_energy(target_energy)
     }
 
     fn get_positions(&self) -> (Vec<f64>, Vec<f64>) {

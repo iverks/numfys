@@ -19,4 +19,5 @@ angles *= 180 / np.pi
 plt.plot(ys, angles)
 plt.xlabel("b")
 plt.ylabel("degrees from x-axis")
+plt.savefig("angle_dist.png")
 plt.show()

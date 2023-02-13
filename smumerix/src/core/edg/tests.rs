@@ -18,7 +18,7 @@ fn test_one_particle_straight_on() {
         },
         Particle {
             x: Point2::new(0.8, 0.5),
-            v: Vector2::new(0.5, 0.0),
+            v: Vector2::new(0.4, 0.0),
             r: 0.01,
             m: 1.0,
             collision_count: 0,
@@ -33,7 +33,7 @@ fn test_one_particle_straight_on() {
     edg.get_initial_collisions();
     edg.step_many(2);
     assert_eq!(edg.particles[0].v.y, -0.5);
-    assert_eq!(edg.particles[1].v.x, -0.5);
+    assert_eq!(edg.particles[1].v.x, -0.4);
 }
 
 #[test]

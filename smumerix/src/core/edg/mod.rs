@@ -5,7 +5,7 @@ use anyhow::{anyhow, Result};
 use nalgebra::{Point2, Vector2};
 use rand::distributions::Uniform;
 use rand::Rng;
-use rayon::prelude::*;
+// use rayon::prelude::*;
 use std::cmp::Ordering;
 use std::collections::BinaryHeap;
 use std::f64::consts::PI;
@@ -374,45 +374,45 @@ impl EventDrivenGas {
         }
 
         let particle = self.particles[particle_idx];
-        let collisions: Vec<Option<Collision>> = self
-            .particles
-            .par_iter()
-            .enumerate()
-            .map(|(idx, other_cell)| {
-                if idx == particle_idx {
-                    return None;
-                }
-                let other = other_cell;
-                let delta_v = particle.v - other.v;
-                let delta_x = particle.x - other.x;
-                let deltaprikk = delta_v.dot(&delta_x);
-
-                if deltaprikk >= 0.0 {
-                    return None;
-                }
-
-                let d = deltaprikk.powi(2)
-                    - delta_v.dot(&delta_v)
-                        * (delta_x.dot(&delta_x) - (particle.r + other.r).powi(2));
-                if d <= 0.0 {
-                    return None;
-                }
-
-                let timestep = -(deltaprikk + d.sqrt()) / (delta_v.dot(&delta_v));
-
-                Some(Collision {
-                    time: self.cur_time + timestep,
-                    particles: (particle_idx, CollisionObject::Particle(idx)),
-                    collision_counts: (particle.collision_count, other.collision_count),
-                })
-            })
-            .collect();
-
-        for coll_opt in collisions {
-            if let Some(coll) = coll_opt {
-                self.pq.push(coll);
+        // let collisions: Vec<Option<Collision>> = self
+        //     .particles
+        //     .par_iter()
+        //     .enumerate()
+        //     .map(|(idx, other_cell)| {
+        for (idx, other_cell) in self.particles.iter().enumerate() {
+            if idx == particle_idx {
+                continue;
             }
+            let other = other_cell;
+            let delta_v = particle.v - other.v;
+            let delta_x = particle.x - other.x;
+            let deltaprikk = delta_v.dot(&delta_x);
+
+            if deltaprikk >= 0.0 {
+                continue;
+            }
+
+            let d = deltaprikk.powi(2)
+                - delta_v.dot(&delta_v) * (delta_x.dot(&delta_x) - (particle.r + other.r).powi(2));
+            if d <= 0.0 {
+                continue;
+            }
+
+            let timestep = -(deltaprikk + d.sqrt()) / (delta_v.dot(&delta_v));
+
+            self.pq.push(Collision {
+                time: self.cur_time + timestep,
+                particles: (particle_idx, CollisionObject::Particle(idx)),
+                collision_counts: (particle.collision_count, other.collision_count),
+            })
         }
+        // .collect();
+
+        // for coll_opt in collisions {
+        //     if let Some(coll) = coll_opt {
+        //         self.pq.push(coll);
+        //     }
+        // }
     }
 
     fn move_particles(&mut self, timestep: f64) {
@@ -426,7 +426,8 @@ impl EventDrivenGas {
         // Get collision
         let collision = loop {
             let coll = self.pq.pop().expect("queue empty");
-            if coll.time - self.cur_time < 1e-12 {
+            const T_C: f64 = 0.0; //1e-12;
+            if coll.time - self.cur_time < T_C {
                 continue;
             }
 
@@ -450,15 +451,28 @@ impl EventDrivenGas {
         // Insert new collisions into queue
         self.add_collisions_to_pq(collision.particles.0);
 
-        match collision.particles.1 {
-            CollisionObject::Particle(idx) => self.add_collisions_to_pq(idx),
-            _ => (),
-        };
+        if let CollisionObject::Particle(idx) = collision.particles.1 {
+            self.add_collisions_to_pq(idx);
+        }
     }
 
     pub fn step_many(&mut self, num_loops: i32) {
         for _ in 0..num_loops {
             self.step();
+        }
+    }
+
+    pub fn step_until_energy(&mut self, target_energy: f64) {
+        if self.xi == 1.0 {
+            panic!("Can't be used if collisions are elastic");
+        }
+
+        loop {
+            self.step();
+            let energy = self.get_total_energy();
+            if energy <= target_energy {
+                return;
+            }
         }
     }
 
@@ -475,6 +489,7 @@ impl EventDrivenGas {
     }
 }
 
+#[allow(unused)]
 pub fn get_moved_particles(particles: &Vec<Particle>, timestep: f64) -> Vec<Particle> {
     let mut particles_clone = particles.clone();
     for particle in particles_clone.iter_mut() {
