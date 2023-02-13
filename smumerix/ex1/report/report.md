@@ -69,3 +69,5 @@ I did however notice that the time to run was significantly higher, which i susp
 
 When doing a rough scan over the initial speed of the large ball from 0.1 to 5.0 the number of collisions did not seem to change much at all.
 
+This is still the result when doing a fine scan.
+
