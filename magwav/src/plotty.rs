@@ -1,13 +1,9 @@
-use std::f64::consts::PI;
+use std::{f64::consts::PI, ops::Range};
 
 use crate::system::Magnet;
 use anyhow as ah;
 use nalgebra as na;
-use plotters::{
-    coord::ranged3d::{ProjectionMatrix, ProjectionMatrixBuilder},
-    prelude::*,
-    style::full_palette::BLUEGREY_800,
-};
+use plotters2::{coord::ranged3d::ProjectionMatrix, prelude::*, style::full_palette::BLUEGREY_800};
 
 pub fn plot_system(states: &Vec<na::DMatrix<Magnet>>) -> ah::Result<()> {
     let root = BitMapBackend::gif("plots/testplot.gif", (600, 400), 1000)?.into_drawing_area();
@@ -15,8 +11,12 @@ pub fn plot_system(states: &Vec<na::DMatrix<Magnet>>) -> ah::Result<()> {
     for magnets in states {
         root.fill(&WHITE).unwrap();
 
-        let mut chart =
-            ChartBuilder::on(&root).build_cartesian_3d(-1.0..1.0, -1.0..1.0, -1.0..1.0)?;
+        let mut chart = ChartBuilder::on(&root)
+            .build_cartesian_3d::<Range<f64>, Range<f64>, Range<f64>>(
+                -1.0..1.0,
+                -1.0..1.0,
+                -1.0..1.0,
+            )?;
 
         chart.with_projection(|mut p| {
             p.add_transform(ProjectionMatrix::rotate(-PI * 0.5, 0.0, 0.0));

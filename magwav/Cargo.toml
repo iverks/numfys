@@ -8,8 +8,8 @@ edition = "2021"
 [dependencies]
 anyhow = "1.0.69"
 nalgebra = "0.32.1"
-# plotters = "0.3.4"
 plotters = { git = "https://github.com/iverks/plotters" }
+# plotters = "0.3.4"
 
 [profile.dev]
 opt-level = 1
