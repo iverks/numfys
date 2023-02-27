@@ -3,19 +3,22 @@ use std::{f64::consts::PI, ops::Range};
 use crate::system::Magnet;
 use anyhow as ah;
 use nalgebra as na;
-use plotters2::{coord::ranged3d::ProjectionMatrix, prelude::*, style::full_palette::BLUEGREY_800};
+use plotters::{coord::ranged3d::ProjectionMatrix, prelude::*, style::full_palette::ORANGE_400};
 
 pub fn plot_system(states: &Vec<na::DMatrix<Magnet>>) -> ah::Result<()> {
     let root = BitMapBackend::gif("plots/testplot.gif", (600, 400), 1000)?.into_drawing_area();
+    let (minx, maxx) = (-1.0, 1.0);
+    let (miny, maxy) = (-1.0, 1.0);
+    let (minz, maxz) = (0.0, 1.0);
 
     for magnets in states {
         root.fill(&WHITE).unwrap();
 
         let mut chart = ChartBuilder::on(&root)
             .build_cartesian_3d::<Range<f64>, Range<f64>, Range<f64>>(
-                -1.0..1.0,
-                -1.0..1.0,
-                -1.0..1.0,
+                minx..maxx,
+                miny..maxy,
+                minz..maxz,
             )?;
 
         chart.with_projection(|mut p| {
@@ -30,29 +33,30 @@ pub fn plot_system(states: &Vec<na::DMatrix<Magnet>>) -> ah::Result<()> {
             .max_light_lines(3)
             .draw()?;
 
-        for (_idx, magnet) in magnets.iter().enumerate() {
-            chart
-                .draw_series(LineSeries::new(
-                    [(0.0, 0.0, 0.0), (magnet.x, magnet.y, magnet.z)].into_iter(),
-                    &BLUEGREY_800,
-                ))
-                .unwrap();
+        let (y_range, x_range) = magnets.shape();
+        let (del_x, del_y) = (
+            (maxx - minx) / x_range as f64,
+            (maxy - miny) / y_range as f64,
+        );
+        for y in 0..y_range {
+            for x in 0..x_range {
+                let magnet = magnets[(y, x)];
+                let (x, y, z) = (
+                    minx + (x as f64 + 0.5) * del_x,
+                    miny + (y as f64 + 0.5) * del_y,
+                    0.0,
+                );
+                chart
+                    .draw_series(
+                        LineSeries::new(
+                            [(x, y, z), (x + magnet.x, y + magnet.y, z + magnet.z)].into_iter(),
+                            &ORANGE_400,
+                        )
+                        .point_size(3),
+                    )
+                    .unwrap();
+            }
         }
-
-        chart
-            .draw_series(LineSeries::new(
-                [(0.0, 0.0, 0.0), (1.0, 0.0, 0.0)].into_iter(),
-                &GREEN,
-            ))
-            .unwrap();
-
-        // Red y axis
-        chart
-            .draw_series(LineSeries::new(
-                [(0.0, 0.0, 0.0), (0.0, 1.0, 0.0)].into_iter(),
-                &RED,
-            ))
-            .unwrap();
 
         root.present()?;
     }

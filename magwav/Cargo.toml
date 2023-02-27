@@ -8,7 +8,8 @@ edition = "2021"
 [dependencies]
 anyhow = "1.0.69"
 nalgebra = "0.32.1"
-plotters = { git = "https://github.com/iverks/plotters" }
+plotters = { path = "../plotters/plotters" }
+# plotters = { git = "https://github.com/iverks/plotters" }
 # plotters = "0.3.4"
 
 [profile.dev]

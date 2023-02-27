@@ -1,3 +1,4 @@
+#![allow(unused)]
 use nalgebra as na;
 
 pub const E_Z: na::Vector3<f64> = na::Vector3::new(0.0, 0.0, 1.0);
@@ -29,7 +30,7 @@ impl MagneticSystem {
             dampening_constant,
             anisotropy_constant: 0.3 * coupling_constant,
             temperature: 0.1 * coupling_constant,
-            magnetic_field: 0.3 * E_Z,
+            magnetic_field: 0.3 * coupling_constant * E_Z,
         }
     }
 
@@ -44,12 +45,32 @@ impl MagneticSystem {
     }
 
     fn derivative(&self, magnets: &na::DMatrix<Magnet>, time: f64) -> na::DMatrix<Magnet> {
-        // let consts = -GYROMAGNETIC_RATIO / (1.0 + self.dampening_constant);
-        // magnets.map(|magnet| {
-        //     let h_eff = -1.0/BOHR_MAGNETRON *
-        // })
+        let consts = -GYROMAGNETIC_RATIO / (1.0 + self.dampening_constant);
+        let (y_range, x_range) = magnets.shape();
+        for y in 0..y_range {
+            for x in 0..x_range {
+                // Find h_eff for given magnet
+                // Sum over nearest neighbours to find coupling term
+                let mut nearest_sum = Magnet::new(0.0, 0.0, 0.0);
+                for (dx, dy) in [(-1 as i32, 0 as i32), (1, 0), (0, -1), (0, 1)] {
+                    nearest_sum += magnets[((y as i32 + dy) as usize, (x as i32 + dx) as usize)];
+                }
+                let coupling = nearest_sum * self.coupling_constant / 2.0;
+
+                // find anisotropy term
+                let cur_mag = magnets[(y, x)];
+                let anisotropy = 2.0 * (cur_mag.dot(&E_Z)) * E_Z;
+
+                // find semen term
+                let siemen = self.magnetic_field;
+
+                let h_eff = -1.0 / BOHR_MAGNETRON * (coupling + anisotropy + siemen);
+            }
+        }
         todo!()
     }
+
+    // fn h_eff(&self, magnet: &Magnet) -> Magnet {}
 }
 
 fn heisenberg_hamiltonean(magnets: na::DMatrix<Magnet>, magnetic_const: f64) -> f64 {
