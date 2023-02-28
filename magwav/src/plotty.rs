@@ -3,7 +3,11 @@ use std::{f64::consts::PI, ops::Range};
 use crate::system::Magnet;
 use anyhow as ah;
 use nalgebra as na;
-use plotters::{coord::ranged3d::ProjectionMatrix, prelude::*, style::full_palette::ORANGE_400};
+use plotters::{
+    coord::ranged3d::ProjectionMatrix,
+    prelude::*,
+    style::full_palette::{GREY, ORANGE_600},
+};
 
 pub fn plot_system(
     states: &Vec<na::DMatrix<Magnet>>,
@@ -16,10 +20,11 @@ pub fn plot_system(
     let (miny, maxy) = (-1.0, 1.0);
     let (minz, maxz) = (0.0, 1.0);
 
-    for magnets in states {
+    for (frame, magnets) in states.iter().enumerate() {
         root.fill(&WHITE).unwrap();
 
         let mut chart = ChartBuilder::on(&root)
+            .caption(format!("{frame}"), &GREY)
             .build_cartesian_3d::<Range<f64>, Range<f64>, Range<f64>>(
                 minx..maxx,
                 miny..maxy,
@@ -60,7 +65,7 @@ pub fn plot_system(
                                 (x + magnet.x, y + magnet.y, z),
                             ]
                             .into_iter(),
-                            &ORANGE_400,
+                            &ORANGE_600,
                         )
                         .point_size(3),
                     )

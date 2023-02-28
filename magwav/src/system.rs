@@ -12,12 +12,12 @@ pub type Magnet = na::Vector3<f64>;
 #[derive(Debug, Clone)]
 pub struct MagneticSystem {
     pub magnets: na::DMatrix<Magnet>,
-    coupling_constant: f64,
-    dampening_constant: f64,
-    anisotropy_constant: f64,
-    temperature: f64,
-    magnetic_field: na::Vector3<f64>,
-    timestep: f64,
+    pub dampening_constant: f64,
+    pub coupling_constant: f64,
+    pub anisotropy_constant: f64,
+    pub temperature: f64,
+    pub magnetic_field: na::Vector3<f64>,
+    pub timestep: f64,
 }
 
 //* NB: periodic boundary condition
@@ -30,8 +30,8 @@ impl MagneticSystem {
     ) -> Self {
         Self {
             magnets,
-            coupling_constant,
             dampening_constant,
+            coupling_constant,
             anisotropy_constant: 0.3 * coupling_constant,
             temperature: 0.1 * coupling_constant,
             magnetic_field: 0.3 * coupling_constant * E_Z,
@@ -67,6 +67,7 @@ impl MagneticSystem {
                     let new_x = ((x as i32 + dx) as usize) % x_range;
                     nearest_sum += magnets[(new_y, new_x)];
                 }
+
                 let coupling = nearest_sum * self.coupling_constant / 2.0;
 
                 // Find anisotropy term
@@ -94,13 +95,19 @@ impl MagneticSystem {
     }
 
     fn random_noise_magnet(&self) -> Magnet {
+        if self.coupling_constant == 0.0 {
+            return Magnet::new(0.0, 0.0, 0.0);
+        }
         let mut rng = thread_rng();
         let mut normal = Normal::new(0.0, 1.0).unwrap();
         let mut magnet = Magnet::from_fn(|_, _| normal.sample(&mut rng));
 
-        magnet *= (2.0 * self.dampening_constant * self.temperature
-            / (self.coupling_constant * BOHR_MAGNETRON * self.timestep))
-            .sqrt();
+        let consts = 2.0 * self.dampening_constant * self.temperature
+            / (self.coupling_constant * BOHR_MAGNETRON * self.timestep);
+
+        println!("consts {consts}");
+
+        magnet *= consts.sqrt();
         magnet
     }
 }
