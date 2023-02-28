@@ -5,8 +5,13 @@ use anyhow as ah;
 use nalgebra as na;
 use plotters::{coord::ranged3d::ProjectionMatrix, prelude::*, style::full_palette::ORANGE_400};
 
-pub fn plot_system(states: &Vec<na::DMatrix<Magnet>>) -> ah::Result<()> {
-    let root = BitMapBackend::gif("plots/testplot.gif", (600, 400), 1000)?.into_drawing_area();
+pub fn plot_system(
+    states: &Vec<na::DMatrix<Magnet>>,
+    filename: &str,
+    frame_delay: u32,
+) -> ah::Result<()> {
+    let root = BitMapBackend::gif("plots/".to_owned() + filename, (600, 400), frame_delay)?
+        .into_drawing_area();
     let (minx, maxx) = (-1.0, 1.0);
     let (miny, maxy) = (-1.0, 1.0);
     let (minz, maxz) = (0.0, 1.0);
@@ -49,7 +54,12 @@ pub fn plot_system(states: &Vec<na::DMatrix<Magnet>>) -> ah::Result<()> {
                 chart
                     .draw_series(
                         LineSeries::new(
-                            [(x, y, z), (x + magnet.x, y + magnet.y, z + magnet.z)].into_iter(),
+                            [
+                                (x, y, z),
+                                (x + magnet.x, y + magnet.y, z + magnet.z),
+                                (x + magnet.x, y + magnet.y, z),
+                            ]
+                            .into_iter(),
                             &ORANGE_400,
                         )
                         .point_size(3),
