@@ -18,16 +18,16 @@ fn task_2_1() {
     // let mut sys = MagneticSystem::new_toy(na::DMatrix::from_element(1, 1, magnet), 10e-3, 0.0, 1e6);
     let mut sys = MagneticSystem {
         magnets: na::DMatrix::from_element(1, 1, magnet),
-        dampening_constant: 0.0,
+        dampening_constant: 0.1,
         coupling_constant: 0.0,
-        anisotropy_constant: 3e-3,
-        temperature: 0.0,
+        anisotropy_constant: 1e-3,
+        temperature: 5e-4,
         magnetic_field: 0.0 * E_Z,
         timestep: 5e4,
     };
     let mut states = vec![sys.magnets.clone()];
 
-    for _ in 0..100 {
+    for _ in 0..200 {
         for _ in 0..5 {
             sys.step();
         }

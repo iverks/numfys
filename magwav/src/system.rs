@@ -74,13 +74,14 @@ impl MagneticSystem {
                 let cur_mag = magnets[(y, x)];
                 let anisotropy = 2.0 * (cur_mag.dot(&E_Z)) * E_Z;
 
-                // Find semen term
+                // Find siemen term
                 let siemen = self.magnetic_field;
 
                 // Find noise term
                 let noise_term = self.random_noise_magnet();
 
-                let h_eff = -1.0 / BOHR_MAGNETRON * (coupling + anisotropy + siemen) + noise_term;
+                // Note that there is a double negative so 1.0 is positive
+                let h_eff = 1.0 / BOHR_MAGNETRON * (coupling + anisotropy + siemen) + noise_term;
 
                 // Find actual derivative
                 let magnet_cross_h = magnets[(y, x)].cross(&h_eff);
