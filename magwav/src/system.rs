@@ -62,7 +62,15 @@ impl MagneticSystem {
                 // Find h_eff for given magnet
                 // Sum over nearest neighbours to find coupling term
                 let mut nearest_sum = Magnet::new(0.0, 0.0, 0.0);
-                for (dx, dy) in [(-1 as i32, 0 as i32), (1, 0), (0, -1), (0, 1)] {
+                let mut nearests: Vec<(i32, i32)> = vec![];
+                if y_range > 1 {
+                    nearests.append(&mut vec![(0, -1), (0, 1)]);
+                }
+                if x_range > 1 {
+                    nearests.append(&mut vec![(-1, 0), (1, 0)])
+                }
+
+                for (dx, dy) in nearests {
                     let new_y = ((y as i32 + dy) as usize) % y_range;
                     let new_x = ((x as i32 + dx) as usize) % x_range;
                     nearest_sum += magnets[(new_y, new_x)];
@@ -105,8 +113,6 @@ impl MagneticSystem {
 
         let consts = 2.0 * self.dampening_constant * self.temperature
             / (self.coupling_constant * BOHR_MAGNETRON * self.timestep);
-
-        println!("consts {consts}");
 
         magnet *= consts.sqrt();
         magnet

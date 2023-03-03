@@ -23,3 +23,6 @@ Note: T=0.1 means 0.1 d$_z$ or 0.1 meV (1e-4)
 
 ![with temperature](2.1_T=0.1,a=0.1.gif), ![more temperature](2.1_T=0.5,a=0.1.gif)
 
+## Exploring coupling with N = 10
+
+I expect the ground state to be all magnets aligned. In my case most magnets are aligned.
