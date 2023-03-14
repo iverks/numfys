@@ -44,7 +44,7 @@ pub fn plot_system(
             p.scale = 0.9;
             if let PlotDirection::Task2_1_3 = plot_direction {
                 p.yaw = 0.1;
-                p.pitch = PI * 0.5 - 0.4;
+                p.pitch = PI * 0.5 - 0.01;
             }
             p.into_matrix()
         });
@@ -97,7 +97,7 @@ pub fn plot_system(
             PlotDirection::Task2_1_1 | PlotDirection::Task2_1_2 => {
                 chart.draw_series(
                     SurfaceSeries::xoy(
-                        (0..60).map(|n| n as f64 / 60.0 * (maxx - minx) / 1.0),
+                        (-30..30).map(|n| n as f64 / 30.0 * (maxx - minx) / 2.0),
                         (-30..30).map(|n| n as f64 / 30.0 * (maxy - miny) / 2.0),
                         |_, _| 0.0,
                     )

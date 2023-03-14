@@ -1,10 +1,11 @@
 // #![allow(unused)]
 use nalgebra as na;
+use ndarray::Array3;
 use rand::thread_rng;
 use rand_distr::{Distribution, Normal};
 
 pub const E_Z: na::Vector3<f64> = na::Vector3::new(0.0, 0.0, 1.0);
-pub const GYROMAGNETIC_RATIO: f64 = 1.6e-11;
+pub const GYROMAGNETIC_RATIO: f64 = 1.6e11;
 pub const BOHR_MAGNETRON: f64 = 5.8e-5;
 
 pub type Magnet = na::Vector3<f64>;
@@ -80,7 +81,7 @@ impl MagneticSystem {
 
                 // Find anisotropy term
                 let cur_mag = magnets[(y, x)];
-                let anisotropy = 2.0 * (cur_mag.dot(&E_Z)) * E_Z;
+                let anisotropy = self.anisotropy_constant * 2.0 * (cur_mag.dot(&E_Z)) * E_Z;
 
                 // Find siemen term
                 let siemen = self.magnetic_field;
@@ -93,7 +94,7 @@ impl MagneticSystem {
 
                 // Find actual derivative
                 let magnet_cross_h = magnets[(y, x)].cross(&h_eff);
-                let derivative = -GYROMAGNETIC_RATIO / (1.0 + self.dampening_constant)
+                let derivative = -GYROMAGNETIC_RATIO / (1.0 + self.dampening_constant.powi(2))
                     * (magnet_cross_h
                         + self.dampening_constant * magnets[(y, x)].cross(&magnet_cross_h));
 
@@ -112,7 +113,7 @@ impl MagneticSystem {
         let mut magnet = Magnet::from_fn(|_, _| normal.sample(&mut rng));
 
         let consts = 2.0 * self.dampening_constant * self.temperature
-            / (self.coupling_constant * BOHR_MAGNETRON * self.timestep);
+            / (GYROMAGNETIC_RATIO * BOHR_MAGNETRON * self.timestep);
 
         magnet *= consts.sqrt();
         magnet
