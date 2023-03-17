@@ -332,6 +332,7 @@ dependencies = [
  "nalgebra",
  "ndarray",
  "plotters",
+ "timeit",
 ]
 
 [[package]]
@@ -829,6 +830,15 @@ dependencies = [
  "libc",
  "wasi 0.10.0+wasi-snapshot-preview1",
  "winapi",
+]
+
+[[package]]
+name = "timeit"
+version = "0.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8b2942f5edfee7facb569dd9965b649370397d82fe2511383175f15f26eebfa5"
+dependencies = [
+ "time",
 ]
 
 [[package]]

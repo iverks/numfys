@@ -1,10 +1,11 @@
 use nalgebra as na;
 
-pub struct Fractal {
-    points: Vec<na::Point2<f64>>,
-}
+// pub struct Fractal {
+//     points: Vec<na::Point2<f64>>,
+// }
 
-pub fn generate_fractal_drum(side_length: f64, depth: i32) -> Vec<na::Point2<f64>> {
+pub fn generate_fractal_drum(side_length: f64, depth: u32) -> Vec<na::Point2<f64>> {
+    let side_length = side_length / 2.0;
     let mut lines: Vec<na::Point2<f64>> = vec![
         // Clockwise from top left
         // top left
