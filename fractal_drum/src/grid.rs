@@ -1,8 +1,17 @@
 use std::collections::VecDeque;
 
+use eigenvalues::{lanczos::HermitianLanczos, utils::sort_eigenpairs, SpectrumTarget};
+use lapack::dgees;
+use na::ComplexField;
 use nalgebra as na;
-use ndarray::Array2;
+use nalgebra_sparse::{CooMatrix, CsrMatrix};
+use ndarray::{s, Array, Array1, Array2, Array3, AssignElem, ShapeBuilder};
+use ndarray_linalg::{eig, Eig, Eigh, EighInplace, UPLO};
+use sprs::{assign_to_dense, TriMat};
+use sprs_ldl::{Ldl, LdlNumeric};
 use timeit::{timeit, timeit_loops};
+
+use crate::plotty;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum GridPoint {
@@ -13,6 +22,7 @@ pub enum GridPoint {
 
 pub struct Grid {
     pub grid: Array2<GridPoint>,
+    pub grid_const: f64,
 }
 
 impl Grid {
@@ -53,16 +63,26 @@ impl Grid {
             }
         }
 
-        Self { grid }
+        Self { grid, grid_const }
     }
 
-    pub fn from_fractal_marked(
-        fractal: Vec<na::Point2<f64>>,
+    pub fn from_fractal_marked_double(
+        fractal: &Vec<na::Point2<f64>>,
         side_length: f64,
         level: u32,
-        dblres: bool,
     ) -> Self {
-        let mut me = Self::from_fractal(&fractal, side_length, level, dblres);
+        let mut me = Self::from_fractal(&fractal, side_length, level, true);
+        // mark_inside_line_trick(&mut me.grid);
+        mark_inside_bfs(&mut me.grid);
+        me
+    }
+
+    pub fn from_fractal_marked_single(
+        fractal: &Vec<na::Point2<f64>>,
+        side_length: f64,
+        level: u32,
+    ) -> Self {
+        let mut me = Self::from_fractal(&fractal, side_length, level, false);
         mark_inside_bfs(&mut me.grid);
         me
     }
@@ -91,6 +111,126 @@ impl Grid {
         print!("lt_slow double resolution | ");
         timeit!({ mark_inside_line_trick_slower(&mut griddy_dbl.grid.clone()) });
     }
+
+    pub fn solve_sparse_nalgebra(&self) {
+        let n = self.grid.dim().0;
+        let mut eq = CooMatrix::new(n * n, n * n);
+
+        let grid_const_squared = self.grid_const.powi(2);
+        for i in 0..n * n {
+            let y = i / n;
+            let x = i % n;
+
+            // Skip points outside
+            match self.grid[(y, x)] {
+                GridPoint::Outy | GridPoint::Wall => {
+                    continue;
+                }
+                _ => (),
+            }
+            eq.push(i, y * n + x, 4.0 / grid_const_squared);
+
+            for (dy, dx) in [(-1, 0), (1, 0), (0, -1), (0, 1)] {
+                let new_y = (y as i32 + dy) as usize;
+                let new_x = (x as i32 + dx) as usize;
+                if new_x >= n || new_y >= n {
+                    continue;
+                }
+                eq.push(i, y * n + x, -1.0 / grid_const_squared);
+            }
+        }
+
+        let eq_to_solve = CsrMatrix::from(&eq);
+        // let dense = na::DMatrix::from(eq_to_solve.to_owned());
+    }
+
+    pub fn solve_sparse(&self) {
+        let n = self.grid.dim().0;
+        let mut eq = TriMat::new((n * n, n * n));
+
+        let grid_const_squared = self.grid_const.powi(2);
+        for i in 0..n * n {
+            let y = i / n;
+            let x = i % n;
+
+            // Skip points outside
+            match self.grid[(y, x)] {
+                GridPoint::Outy | GridPoint::Wall => {
+                    continue;
+                }
+                _ => (),
+            }
+            eq.add_triplet(i, y * n + x, 4.0 / grid_const_squared);
+
+            for (dy, dx) in [(-1, 0), (1, 0), (0, -1), (0, 1)] {
+                let new_y = (y as i32 + dy) as usize;
+                let new_x = (x as i32 + dx) as usize;
+                if new_x >= n || new_y >= n {
+                    continue;
+                }
+                eq.add_triplet(i, y * n + x, -1.0 / grid_const_squared);
+            }
+        }
+
+        let eq_to_solve = eq.to_csc();
+        let mut ldl = Ldl::new()
+            .fill_in_reduction(sprs::FillInReduction::CAMDSuiteSparse)
+            .check_symmetry(sprs::CheckSymmetry)
+            .numeric(eq_to_solve.view())
+            .unwrap();
+
+        println!("{:?}", eq_to_solve);
+
+        // HOW TO SOLVE https://github.com/sparsemat/sprs
+    }
+
+    pub fn solve(&self) -> (Array1<f64>, Array3<f64>) {
+        let n = self.grid.dim().0;
+        let mut energies = Array2::<f64>::zeros((n * n, n * n));
+
+        let grid_const_squared = self.grid_const.powi(2);
+        for i in 0..n * n {
+            let y = i / n;
+            let x = i % n;
+
+            // Skip points outside
+            match self.grid[(y, x)] {
+                GridPoint::Outy | GridPoint::Wall => {
+                    continue;
+                }
+                _ => (),
+            }
+
+            energies[(i, i)] = -4.0 / grid_const_squared;
+
+            for (dy, dx) in [(-1, 0), (1, 0), (0, -1), (0, 1)] {
+                let new_y = (y as i32 + dy) as usize;
+                let new_x = (x as i32 + dx) as usize;
+                if new_x >= n || new_y >= n {
+                    continue;
+                }
+                energies[(i, new_y * n + new_x)] = 1.0 / grid_const_squared;
+            }
+        }
+
+        println!();
+        plotty::plot_sln(energies.slice(s![.., ..]), "images/function.jpg");
+
+        println!("solving");
+
+        let (eigs, vecs) = energies.eigh(UPLO::Upper).unwrap();
+
+        println!("SOLVED, {} eigs are {eigs}", eigs.len());
+
+        let mut vecs_reshaped = Array3::<f64>::zeros((n * n, n, n));
+        for ((eiglevel, i), energy) in vecs.indexed_iter() {
+            let y = i / n;
+            let x = i % n;
+            vecs_reshaped[(eiglevel, y, x)] = *energy;
+        }
+
+        (eigs, vecs_reshaped)
+    }
 }
 
 fn mark_inside_bfs(grid: &mut Array2<GridPoint>) {
@@ -102,9 +242,6 @@ fn mark_inside_bfs(grid: &mut Array2<GridPoint>) {
     while let Some((y, x)) = queue.pop_front() {
         let diffs = [(-1, 0), (1, 0), (0, -1), (0, 1)];
         for (dy, dx) in diffs {
-            if x == 0 || y == 0 {
-                println!("{x}, {y}, {:?}", grid[(y, x)]);
-            }
             let (new_y, new_x) = ((y as i32 + dy) as usize, (x as i32 + dx) as usize);
             match grid[(new_y, new_x)] {
                 GridPoint::Outy => {
@@ -130,9 +267,6 @@ fn mark_inside_dfs(grid: &mut Array2<GridPoint>) {
     while let Some((y, x)) = queue.pop_back() {
         let diffs = [(-1, 0), (1, 0), (0, -1), (0, 1)];
         for (dy, dx) in diffs {
-            if x == 0 || y == 0 {
-                println!("{x}, {y}, {:?}", grid[(y, x)]);
-            }
             let (new_y, new_x) = ((y as i32 + dy) as usize, (x as i32 + dx) as usize);
             match grid[(new_y, new_x)] {
                 GridPoint::Outy => {
@@ -153,8 +287,8 @@ fn mark_inside_dfs(grid: &mut Array2<GridPoint>) {
 fn mark_inside_line_trick(grid: &mut Array2<GridPoint>) {
     let mut wall_counter = 0;
     let mut prev = GridPoint::Outy;
-    for ((y, _x), pt) in grid.indexed_iter_mut() {
-        if y == 0 {
+    for ((y, x), pt) in grid.indexed_iter_mut() {
+        if x == 0 {
             wall_counter = 0;
             prev = GridPoint::Outy;
         }
@@ -163,7 +297,7 @@ fn mark_inside_line_trick(grid: &mut Array2<GridPoint>) {
             wall_counter += 1;
         }
 
-        if *pt != GridPoint::Wall && wall_counter % 2 == 0 {
+        if *pt != GridPoint::Wall && wall_counter % 2 != 0 {
             *pt = GridPoint::Inny;
         }
 
@@ -171,6 +305,7 @@ fn mark_inside_line_trick(grid: &mut Array2<GridPoint>) {
     }
 }
 
+/// Note: is bugged
 fn mark_inside_line_trick_slower(grid: &mut Array2<GridPoint>) {
     for y in 0..grid.dim().0 {
         for x in 0..grid.dim().1 {

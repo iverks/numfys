@@ -12,7 +12,7 @@ l = n => grid const = L/(4^n)
 Note: the walls are already marked as walls
 Note2: When talking about n: n is a number proportional to 1/lattice constant.
 
-Method 1 (bfs/dfs):
+Method 1 (bfs/dfs - breadth-first search/depth-first search):
     Begin at a point that we know is inside the fractal: the middle. Do a bfs/dfs where we do not cross the walls, and mark all found grid points as inside. All other points are outside. This assumes of course that the middle point is inside the fractal.
 
 Method 2 (lt_slow - line trick slow):
@@ -56,3 +56,5 @@ dfs double resolution | 1 loops: 855.6668000000001 ms
 lt double resolution | 1 loops: 407.8406999999999 ms
 lt_slow double resolution | dnf, too slow
 ```
+
+From timing i learned that my implementation of bfs is usually slifhtly faster than my implementation of dfs for some reason. I have no idea why. I also learned that for double resolution the line trick solution is always faster. I will be using this going forward since i think that it is the cleanest solution, and fits best with the problem description. The "line trick slow" solution is unsuprisingly much slower. This i believe to be for two reasons. Firstly it uses bounds checks due to the way the iteration is done. Secondly it has to iterate over many more grid points, being O(n^3). The pattern could be useful since it is possible to check if a single point is inside or outside the grid (would be O(n)), but is very slow for checking all points.

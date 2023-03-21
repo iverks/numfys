@@ -3,6 +3,7 @@ use std::{f64::consts::PI, ops::Range};
 use crate::system::Magnet;
 use anyhow as ah;
 use nalgebra as na;
+use ndarray::Array3;
 use plotters::{
     coord::ranged3d::ProjectionMatrix,
     prelude::*,
@@ -13,17 +14,18 @@ pub enum PlotDirection {
     Task2_1_1,
     Task2_1_2,
     Task2_1_3,
+    Task2_2_2_1,
 }
 
 pub fn plot_system(
-    states: &Vec<na::DMatrix<Magnet>>,
+    states: &Vec<Array3<Magnet>>,
     filename: &str,
     frame_delay: u32,
     plot_direction: PlotDirection,
 ) -> ah::Result<()> {
     let root = BitMapBackend::gif("plots/".to_owned() + filename, (600, 400), frame_delay)?
         .into_drawing_area();
-    let (minx, maxx) = (-1.0, 1.0);
+    let (minx, maxx) = (-100.0, 100.0);
     let (miny, maxy) = (-1.0, 1.0);
     let (minz, maxz) = (-1.0, 1.0);
 
@@ -42,10 +44,19 @@ pub fn plot_system(
         chart.with_projection(|mut p| {
             p.add_transform(ProjectionMatrix::rotate(-PI * 0.5, 0.0, 0.0));
             p.scale = 0.9;
-            if let PlotDirection::Task2_1_3 = plot_direction {
-                p.yaw = 0.1;
-                p.pitch = PI * 0.5 - 0.01;
+            match plot_direction {
+                PlotDirection::Task2_1_3 => {
+                    p.yaw = 0.1;
+                    p.pitch = PI * 0.5 - 0.01;
+                }
+                PlotDirection::Task2_2_2_1 => {
+                    p.yaw = 0.1;
+                    p.pitch = PI * 0.5 - 0.01;
+                    // p.pitch = PI * 0.5 - 0.4;
+                }
+                _ => (),
             }
+
             p.into_matrix()
         });
 
@@ -55,40 +66,43 @@ pub fn plot_system(
             .max_light_lines(3)
             .draw()?;
 
-        let (y_range, x_range) = magnets.shape();
-        let (del_x, del_y) = (
+        let (z_range, y_range, x_range) = magnets.dim();
+        let (del_x, del_y, del_z) = (
             (maxx - minx) / x_range as f64,
             (maxy - miny) / y_range as f64,
+            (maxz - minz) / z_range as f64,
         );
-        for y in 0..y_range {
-            for x in 0..x_range {
-                let magnet = magnets[(y, x)];
-                let (x, y, z) = (
-                    minx + (x as f64 + 0.5) * del_x,
-                    miny + (y as f64 + 0.5) * del_y,
-                    0.0,
-                );
+        for z in 0..z_range {
+            for y in 0..y_range {
+                for x in 0..x_range {
+                    let magnet = magnets[(z, y, x)];
+                    let (x, y, z) = (
+                        minx + (x as f64 + 0.5) * del_x,
+                        miny + (y as f64 + 0.5) * del_y,
+                        minz + (z as f64 + 0.5) * del_z,
+                    );
 
-                let line = if num_magnets < 10 {
-                    vec![(x, y, z), (x + magnet.x, y + magnet.y, z + magnet.z)].into_iter()
-                } else {
-                    vec![
-                        (x, y, z),
-                        (x + magnet.x, y + magnet.y, z + magnet.z),
-                        (x + magnet.x, y + magnet.y, z),
-                    ]
-                    .into_iter()
-                };
+                    let line = if num_magnets < 10 {
+                        vec![(x, y, z), (x + magnet.x, y + magnet.y, z + magnet.z)].into_iter()
+                    } else {
+                        vec![
+                            (x, y, z),
+                            (x + magnet.x, y + magnet.y, z + magnet.z),
+                            (x + magnet.x, y + magnet.y, z),
+                        ]
+                        .into_iter()
+                    };
 
-                chart
-                    .draw_series(
-                        LineSeries::new(
-                            [(x, y, z), (x + magnet.x, y + magnet.y, z + magnet.z)].into_iter(),
-                            &ORANGE_600,
+                    chart
+                        .draw_series(
+                            LineSeries::new(
+                                [(x, y, z), (x + magnet.x, y + magnet.y, z + magnet.z)].into_iter(),
+                                &ORANGE_600,
+                            )
+                            .point_size(3),
                         )
-                        .point_size(3),
-                    )
-                    .unwrap();
+                        .unwrap();
+                }
             }
         }
 
