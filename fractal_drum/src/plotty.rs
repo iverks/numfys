@@ -105,3 +105,43 @@ pub fn plot_sln(grid: ArrayView2<f64>, filename: &str) -> Result<()> {
 
     Ok(())
 }
+
+pub fn plot_sln_nalgebra(grid: na::DMatrixView<f64>, filename: &str) -> Result<()> {
+    let maxval = grid.iter().max_by(|a, b| a.total_cmp(&b)).unwrap();
+    let minval = grid.iter().min_by(|a, b| a.total_cmp(&b)).unwrap();
+
+    let root = BitMapBackend::new(filename, (1024, 768)).into_drawing_area();
+
+    root.fill(&WHITE)?;
+
+    let mut chart = ChartBuilder::on(&root)
+        .caption("Fractal", ("sans-serif", 50))
+        .margin(20)
+        .x_label_area_size(10)
+        .y_label_area_size(10)
+        .build_cartesian_3d(0..grid.shape().0, 0..grid.shape().1, *minval..*maxval)?;
+
+    chart.with_projection(|mut p| {
+        p.add_transform(ProjectionMatrix::rotate(-PI * 0.5, 0.0, 0.0));
+        p.into_matrix()
+    });
+
+    chart.configure_axes().draw()?;
+
+    chart
+        .draw_series(
+            SurfaceSeries::xoy(
+                0..grid.shape().1,
+                0..grid.shape().0,
+                |x: usize, y: usize| grid[(y, x)],
+            )
+            .style_func(&|&v| {
+                (&HSLColor(240.0 / 360.0 - 240.0 / 360.0 * v / 5.0, 1.0, 0.7)).into()
+            }),
+        )
+        .unwrap();
+
+    root.present().expect("Could not write to file :(");
+
+    Ok(())
+}

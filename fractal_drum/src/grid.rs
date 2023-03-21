@@ -1,13 +1,16 @@
 use std::collections::VecDeque;
 
-use eigenvalues::{lanczos::HermitianLanczos, utils::sort_eigenpairs, SpectrumTarget};
+use eigenvalues::{
+    davidson::Davidson, lanczos::HermitianLanczos, utils::sort_eigenpairs, DavidsonCorrection,
+    SpectrumTarget,
+};
 use lapack::dgees;
-use na::ComplexField;
+use na::{ComplexField, DMatrix};
 use nalgebra as na;
 use nalgebra_sparse::{CooMatrix, CsrMatrix};
 use ndarray::{s, Array, Array1, Array2, Array3, AssignElem, ShapeBuilder};
 use ndarray_linalg::{eig, Eig, Eigh, EighInplace, UPLO};
-use sprs::{assign_to_dense, TriMat};
+use sprs::{assign_to_dense, CsMat, TriMat};
 use sprs_ldl::{Ldl, LdlNumeric};
 use timeit::{timeit, timeit_loops};
 
@@ -136,7 +139,7 @@ impl Grid {
                 if new_x >= n || new_y >= n {
                     continue;
                 }
-                eq.push(i, y * n + x, -1.0 / grid_const_squared);
+                eq.push(i, new_y * n + new_x, -1.0 / grid_const_squared);
             }
         }
 
@@ -144,7 +147,7 @@ impl Grid {
         // let dense = na::DMatrix::from(eq_to_solve.to_owned());
     }
 
-    pub fn solve_sparse(&self) {
+    pub fn solve_sparse(&self) -> (Array1<f64>, Array3<f64>) {
         let n = self.grid.dim().0;
         let mut eq = TriMat::new((n * n, n * n));
 
@@ -168,18 +171,23 @@ impl Grid {
                 if new_x >= n || new_y >= n {
                     continue;
                 }
-                eq.add_triplet(i, y * n + x, -1.0 / grid_const_squared);
+                eq.add_triplet(i, new_y * n + new_x, -1.0 / grid_const_squared);
             }
         }
 
-        let eq_to_solve = eq.to_csc();
-        let mut ldl = Ldl::new()
-            .fill_in_reduction(sprs::FillInReduction::CAMDSuiteSparse)
-            .check_symmetry(sprs::CheckSymmetry)
-            .numeric(eq_to_solve.view())
-            .unwrap();
+        let csmat: CsMat<_> = eq.to_csc();
 
-        println!("{:?}", eq_to_solve);
+        let dense = csmat.to_dense();
+        let (eig, eigvec) = dense.eigh(UPLO::Lower).unwrap();
+
+        let mut vecs_reshaped = Array3::<f64>::zeros((n * n, n, n));
+        for ((eiglevel, i), energy) in eigvec.indexed_iter() {
+            let y = i / n;
+            let x = i % n;
+            vecs_reshaped[(eiglevel, y, x)] = *energy;
+        }
+
+        (eig, vecs_reshaped)
 
         // HOW TO SOLVE https://github.com/sparsemat/sprs
     }
@@ -213,12 +221,9 @@ impl Grid {
             }
         }
 
-        println!();
-        plotty::plot_sln(energies.slice(s![.., ..]), "images/function.jpg");
-
         println!("solving");
 
-        let (eigs, vecs) = energies.eigh(UPLO::Upper).unwrap();
+        let (eigs, vecs) = energies.eigh(UPLO::Lower).unwrap();
 
         println!("SOLVED, {} eigs are {eigs}", eigs.len());
 
