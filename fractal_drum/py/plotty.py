@@ -9,6 +9,7 @@ def plot_fractal(xs: list[float], ys: list[float]):
 
 def plot_grid(grid: np.ndarray):
     plt.imshow(grid)
+    # plt.savefig("images/mmm")
     plt.show()
 
 

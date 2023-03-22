@@ -5,8 +5,8 @@
 """
 
 import numpy as np
-from scipy.sparse import coo_matrix
-from scipy.sparse.linalg import eigsh, eigs
+from scipy.sparse import coo_matrix, csc_matrix
+from scipy.sparse.linalg import eigsh
 
 
 def solve(
@@ -25,7 +25,7 @@ def solve(
 
         rows.append(i)
         cols.append(y * n + x)
-        vals.append(-4.0 / grid_const_squared)
+        vals.append(4.0 / grid_const_squared)
 
         for (dy, dx) in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
             new_y = y + dy
@@ -35,13 +35,19 @@ def solve(
 
             rows.append(i)
             cols.append(new_y * n + new_x)
-            vals.append(1.0 / grid_const_squared)
+            vals.append(-1.0 / grid_const_squared)
 
-    coom = coo_matrix((vals, (rows, cols)), shape=(n * n, n * n))
-    csc = coom.tocsc()
-    eigvals, eigfns = eigsh(csc, num_slns + 1)
+    coom: coo_matrix = coo_matrix((vals, (rows, cols)), shape=(n * n, n * n))
+    csc: csc_matrix = coom.tocsc()
+
+    num_slns = num_slns + 0
+    eigvals, eigfns = eigsh(csc, num_slns, which="SA", tol=1e-6)
+
+    mask = np.zeros_like(grid)
+    mask[grid == 2] = 1.0
+
     result_fns = []
     for num in range(num_slns):
-        eigfn = eigfns[:, num_slns]
+        eigfn = eigfns[:, num]
         result_fns.append(eigfn.reshape((n, n)))
     return (eigvals, result_fns)

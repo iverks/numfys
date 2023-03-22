@@ -1,6 +1,3 @@
-import numpy as np
-
-
 def generate_fractal_drum(
     side_length: float, depth: int
 ) -> tuple[list[float], list[float]]:

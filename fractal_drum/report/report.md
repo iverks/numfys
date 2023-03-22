@@ -58,3 +58,20 @@ lt_slow double resolution | dnf, too slow
 ```
 
 From timing i learned that my implementation of bfs is usually slifhtly faster than my implementation of dfs for some reason. I have no idea why. I also learned that for double resolution the line trick solution is always faster. I will be using this going forward since i think that it is the cleanest solution, and fits best with the problem description. The "line trick slow" solution is unsuprisingly much slower. This i believe to be for two reasons. Firstly it uses bounds checks due to the way the iteration is done. Secondly it has to iterate over many more grid points, being O(n^3). The pattern could be useful since it is possible to check if a single point is inside or outside the grid (would be O(n)), but is very slow for checking all points.
+
+## Solving the wave equation
+
+
+
+| Eigenvalues   |
+| ------------- |
+| -377.40144407 |
+| -357.23420643 |
+| -311.85261415 |
+| -227.08610073 |
+| -210.11090729 |
+| -207.85225121 |
+| -199.92842679 |
+| -88.73261959  |
+| 13.57460278   |
+| 1194.43157108 |
