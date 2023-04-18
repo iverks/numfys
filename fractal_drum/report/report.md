@@ -61,15 +61,42 @@ From timing i learned that my implementation of bfs is usually slifhtly faster t
 
 ## Solving the wave equation
 
-| Eigenvalues        |
-| ------------------ |
-| 88.92372376739566  |
-| 200.13456417228906 |
-| 200.13456417237254 |
-| 207.9335614209226  |
-| 210.15895207169396 |
-| 227.47874341337032 |
-| 227.47874341372602 |
-| 311.7301054757136  |
-| 357.6392814236516  |
-| 378.5491019657737  |
+| Eigenvalues | w/v   |
+| ----------- | ----- |
+| 88.86       | 9.42  |
+| 200.00      | 14.14 |
+| 207.76      | 14.41 |
+| 209.93      | 14.49 |
+| 226.87      | 15.06 |
+| 310.89      | 17.63 | 
+| 356.64      | 18.88 |
+| 377.01      | 19.42 |
+| 398.39      | 19.96 |
+| 421.55      | 20.53 |
+| 452.72      | 21.28 |
+| 465.27      | 21.57 |
+| 540.17      | 23.24 |
+
+
+## Task 5
+
+Solving at level 2 takes 0.05 s.
+Solving at level 3 takes 0.42 s.
+Solving at level 4 takes 120 s, and uses 143 MB memory.
+I don't think solving at level 5 is practical for such an iterative process, but it takes XXX s and uses 1.7 GB memory which is about a tenth of my RAM
+Solving at level 6 would not be practical. 
+
+### What problems do we have with increasing level
+
+In order to solve at a higher level we would need to reduce the ram usage and the cpu time. 
+
+### How do we fix these problems
+
+Since we can't be expected to improve upon the fortran code used in the solving alg, i suppose this must be done by shrinking the matrix. 
+
+One way to shrink the matrix can be to remove all pairwise rows and cols that contain only zeros, which will be most of the rows and cols. I did implement this. For level 5 this reduces the shape of my matrix from about (3e6)^2 to about (1e6)^2. It now only uses 1 GB memory, which is suprisingly not that much less. It was also finally realistically possible to solve for this level, which took 21 minutes.
+
+The solution speed of level 4 was reduced from 120 seconds to only 4. The shape of the matrix is here reduced from 182329^2 to 5734^2. Do note that both the original and the shrunk matrices are sparse, and are thus stored in some way where size does not nessecarily correlate with their shape. By checking the actual size of the matrix before and after shrinking, i confirmed that the size of the matrix' internal data (before being sent into the solver) was not changed. It is however very possible that this had an effect on some intermediary state of the data inside the eigenvalue algorithm.
+
+This does however not make it "practical" to solve for levels 8 or 10, as it merely shifted the runtimes by one level. The time it used to take for level 4 it now takes for level 5.   
+I

@@ -14,7 +14,6 @@ def grid_from_fractal(
     level: int,
     dblres: bool,
 ) -> tuple[float, np.ndarray]:
-
     grid_const = side_length / 4**level
     if dblres:
         grid_const *= 0.5
@@ -41,7 +40,7 @@ def grid_from_fractal(
             mid_y = pt1_y + diff_y / 2
             for pt_x, pt_y in zip([pt1_x, mid_x], [pt1_y, mid_y]):
                 new_y = int((pt_y - min_y) / grid_const)
-                new_x = (pt_x - min_x) / grid_const
+                new_x = int((pt_x - min_x) / grid_const)
                 grid[(new_y, new_x)] = 1
 
     else:
@@ -66,7 +65,7 @@ def mark_inside_bfs(grid: np.ndarray):
         y = yq.popleft()
 
         diffs = [(-1, 0), (1, 0), (0, -1), (0, 1)]
-        for (dy, dx) in diffs:
+        for dy, dx in diffs:
             new_y, new_x = y + dy, x + dx
             match grid[(new_y, new_x)]:
                 case 0:  # Outside
