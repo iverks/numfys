@@ -55,8 +55,8 @@ def grid_from_fractal(
 
 def mark_inside_bfs(grid: np.ndarray):
     mid = grid.shape[0] // 2
-    xq: deque[float] = deque()
-    yq: deque[float] = deque()
+    xq: deque[int] = deque()
+    yq: deque[int] = deque()
     grid[(mid, mid)] = 2
     xq.append(mid)
     yq.append(mid)
