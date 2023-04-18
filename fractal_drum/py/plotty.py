@@ -13,7 +13,7 @@ def plot_grid(grid: np.ndarray):
     plt.show()
 
 
-def plot_sln(grid: np.ndarray):
+def plot_sln(grid: np.ndarray, fname: str = ""):
     fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
     x = np.arange(grid.shape[0])
     y = np.arange(grid.shape[1])
@@ -21,3 +21,4 @@ def plot_sln(grid: np.ndarray):
     ax.plot_surface(x, y, grid, cmap="magma")
 
     plt.show()
+    # plt.savefig(fname)
