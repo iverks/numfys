@@ -44,7 +44,7 @@ def add_back_zeros(eigfn: np.ndarray, indices: np.ndarray, n: int) -> np.ndarray
 
 
 def solve(
-    grid: np.ndarray, grid_const: float, num_slns: int, tol: float
+    grid: np.ndarray, grid_const: float, num_slns: int, tol: float, get_fns: bool = True
 ) -> tuple[np.ndarray, np.ndarray]:
     n = grid.shape[0]  # Assume square matrix
     rows, cols, vals = [], [], []
@@ -80,6 +80,12 @@ def solve(
 
     # Remove 0 rows takk til viljar
     csc, indices = remove_zeros(csc)
+
+    if not get_fns:
+        return (
+            eigsh(csc, num_slns, which="SA", tol=tol, return_eigenvectors=get_fns),
+            [],
+        )
 
     eigvals, eigfns = eigsh(csc, num_slns, which="SA", tol=tol)
 

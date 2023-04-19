@@ -88,6 +88,8 @@ Solving at level 4 takes 120 s, and uses 143 MB memory.
 I don't think solving at level 5 is practical for such an iterative process, but it takes XXX s and uses 1.7 GB memory which is about a tenth of my RAM
 Solving at level 6 would not be practical. 
 
+Note: coming back here from the future to note that when extracting more eigenvalues (before 10, now 400) the memory usage increases significantly. 
+
 ### What problems do we have with increasing level
 
 In order to solve at a higher level we would need to reduce the ram usage and the cpu time. 
@@ -103,4 +105,34 @@ The solution speed of level 4 was reduced from 120 seconds to only 4. The shape 
 This does however not make it "practical" to solve for levels 8 or 10, as it merely shifted the runtimes by one level. The time it used to take for level 4 it now takes for level 5.
 
 Maybe there exists a way to solve this by only considering pairs of points on the boundary, or line segments between points on the boundary. If this is the case the amount of points in the matrix would be severely reduced.
+
+After these performance improvements i did task 4 again and achieved these results:
+
+Level = 4, and with 2 points between each corner.
+
+| Eigenvalue | w/v |
+| --- | --- |
+| 88.44 | 9.40 |
+| 198.44 | 14.09 |
+| 198.44 | 14.09 |
+| 206.11 | 14.36 |
+| 208.39 | 14.44 |
+| 226.23 | 15.04 |
+| 226.23 | 15.04 |
+| 309.83 | 17.60 |
+| 355.22 | 18.85 |
+| 375.99 | 19.39 |
+| 375.99 | 19.39 |
+| 398.37 | 19.96 |
+| 421.81 | 20.54 |
+| 453.41 | 21.29 |
+| 465.42 | 21.57 |
+| 465.42 | 21.57 |
+| 540.97 | 23.26 |
+| 553.14 | 23.52 |
+| 615.13 | 24.80 |
+| 615.13 | 24.80 |
+| 657.28 | 25.64 |
+| 660.14 | 25.69 |
+| 682.04 | 26.12 |
 
