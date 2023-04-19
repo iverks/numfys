@@ -11,17 +11,18 @@ from solver import solve, solve_clamped, solve_higher_order
 
 def main():
     side_length = 1.0
-    depth = 3
+    depth = 4
+    n_mids = 1
     frac_xs, frac_ys = generate_fractal_drum(side_length, depth)
     print("Finished frac")
     # plot_fractal(frac_xs, frac_ys)
-    grid_const, grid = grid_from_fractal(frac_xs, frac_ys, side_length, depth, 1)
+    grid_const, grid = grid_from_fractal(frac_xs, frac_ys, side_length, depth, n_mids)
     print("Finished grid")
     # plot_grid(grid)
     grid = mark_inside_bfs(grid)
     print("Finished marking")
     # plot_grid(grid)
-    num_slns = 1000
+    num_slns = 200
     start = time.time()
     eigvals, eigfn = solve(grid, grid_const, num_slns, 1e-2, False)
     # eigvals, eigfn = solve_higher_order(grid, grid_const, num_slns, 1e-2)
@@ -29,8 +30,8 @@ def main():
     stop = time.time()
     print(f"Finished solving with in {stop - start} s")
 
-    # with open("cache/eigvals_l3_1mids_1000vals.json", "w") as f:
-    #     json.dump(eigvals.tolist(), f)
+    with open(f"cache/eigvals_l{depth}_{n_mids}mids_{num_slns}vals.json", "w") as f:
+        json.dump(eigvals.tolist(), f)
 
     # print("Eigvals:")
     # for eig in eigvals:
