@@ -12,11 +12,10 @@ def grid_from_fractal(
     frac_ys: list[float],
     side_length: float,
     level: int,
-    dblres: bool,
+    n_between: int,
 ) -> tuple[float, np.ndarray]:
     grid_const = side_length / 4**level
-    if dblres:
-        grid_const *= 0.5
+    grid_const *= 1 / (n_between + 1)
 
     min_x = min(frac_xs)
     max_x = max(frac_xs)
@@ -28,7 +27,7 @@ def grid_from_fractal(
 
     grid = np.zeros((shape_y, shape_x))
 
-    if dblres:
+    if n_between != 0:
         for i in range(len(frac_xs) - 1):
             pt1_x = frac_xs[i]
             pt1_y = frac_ys[i]
@@ -36,13 +35,13 @@ def grid_from_fractal(
             pt2_y = frac_ys[i + 1]
             diff_x = pt2_x - pt1_x
             diff_y = pt2_y - pt1_y
-            mid_x = pt1_x + diff_x / 2
-            mid_y = pt1_y + diff_y / 2
-            for pt_x, pt_y in zip([pt1_x, mid_x], [pt1_y, mid_y]):
-                new_y = int((pt_y - min_y) / grid_const)
-                new_x = int((pt_x - min_x) / grid_const)
+            # interpolate from start to end pt, not including end
+            for i in range(0, n_between + 1):
+                pt_x = pt1_x + diff_x * i / (n_between + 1)
+                pt_y = pt1_y + diff_y * i / (n_between + 1)
+                new_y = round((pt_y - min_y) / grid_const)
+                new_x = round((pt_x - min_x) / grid_const)
                 grid[(new_y, new_x)] = 1
-
     else:
         for pt_x, pt_y in zip(frac_xs, frac_ys):
             new_y = int((pt_y - min_y) / grid_const)

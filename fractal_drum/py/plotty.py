@@ -10,7 +10,7 @@ def plot_fractal(xs: list[float], ys: list[float]):
 
 
 def plot_grid(grid: np.ndarray):
-    plt.imshow(grid)
+    plt.imshow(grid, interpolation="none", cmap="binary_r")
     # plt.savefig("images/mmm")
     plt.show()
 
@@ -30,6 +30,7 @@ def plot_sln(grid: np.ndarray, fname: str = None):
 
 def plot_sln_im(grid: np.ndarray, fractal: np.ndarray | None):
     plt.imshow(grid)
+    plt.contour(grid)
     if fractal is not None:
         transparent = ColorConverter.to_rgba("black", 0)
         white = ColorConverter.to_rgba("white")
@@ -38,8 +39,5 @@ def plot_sln_im(grid: np.ndarray, fractal: np.ndarray | None):
         )
 
         fractal[fractal == 2] = 0
-        plt.imshow(
-            fractal,
-            cmap=cmap,
-        )
+        plt.imshow(fractal, cmap=cmap, interpolation="none")
     plt.show()

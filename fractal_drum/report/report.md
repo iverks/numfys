@@ -61,6 +61,8 @@ From timing i learned that my implementation of bfs is usually slifhtly faster t
 
 ## Solving the wave equation
 
+Found using level 4
+
 | Eigenvalues | w/v   |
 | ----------- | ----- |
 | 88.86       | 9.42  |
@@ -92,11 +94,13 @@ In order to solve at a higher level we would need to reduce the ram usage and th
 
 ### How do we fix these problems
 
-Since we can't be expected to improve upon the fortran code used in the solving alg, i suppose this must be done by shrinking the matrix. 
+Since we can't be expected to improve upon the fortran code used in the solving algorithm, i suppose this must be done by shrinking the matrix. 
 
-One way to shrink the matrix can be to remove all pairwise rows and cols that contain only zeros, which will be most of the rows and cols. I did implement this. For level 5 this reduces the shape of my matrix from about (3e6)^2 to about (1e6)^2. It now only uses 1 GB memory, which is suprisingly not that much less. It was also finally realistically possible to solve for this level, which took 21 minutes.
+One way to shrink the matrix can be to remove all pairwise rows and cols that contain only zeros, which will be most of the rows and cols. I did implement this :^). For level 5 this reduces the shape of my matrix from about (3e6)^2 to about (1e6)^2. It now only uses 1 GB memory, which is suprisingly not that much less. It was also finally realistically possible to solve for this level, which took 21 minutes.
 
 The solution speed of level 4 was reduced from 120 seconds to only 4. The shape of the matrix is here reduced from 182329^2 to 5734^2. Do note that both the original and the shrunk matrices are sparse, and are thus stored in some way where size does not nessecarily correlate with their shape. By checking the actual size of the matrix before and after shrinking, i confirmed that the size of the matrix' internal data (before being sent into the solver) was not changed. It is however very possible that this had an effect on some intermediary state of the data inside the eigenvalue algorithm.
 
-This does however not make it "practical" to solve for levels 8 or 10, as it merely shifted the runtimes by one level. The time it used to take for level 4 it now takes for level 5.   
-I
+This does however not make it "practical" to solve for levels 8 or 10, as it merely shifted the runtimes by one level. The time it used to take for level 4 it now takes for level 5.
+
+Maybe there exists a way to solve this by only considering pairs of points on the boundary, or line segments between points on the boundary. If this is the case the amount of points in the matrix would be severely reduced.
+
