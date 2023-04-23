@@ -70,7 +70,7 @@ Found using level 4
 | 207.76      | 14.41 |
 | 209.93      | 14.49 |
 | 226.87      | 15.06 |
-| 310.89      | 17.63 | 
+| 310.89      | 17.63 |
 | 356.64      | 18.88 |
 | 377.01      | 19.42 |
 | 398.39      | 19.96 |
@@ -110,29 +110,114 @@ After these performance improvements i did task 4 again and achieved these resul
 
 Level = 4, and with 2 points between each corner.
 
-| Eigenvalue | w/v |
-| --- | --- |
-| 88.44 | 9.40 |
-| 198.44 | 14.09 |
-| 198.44 | 14.09 |
-| 206.11 | 14.36 |
-| 208.39 | 14.44 |
-| 226.23 | 15.04 |
-| 226.23 | 15.04 |
-| 309.83 | 17.60 |
-| 355.22 | 18.85 |
-| 375.99 | 19.39 |
-| 375.99 | 19.39 |
-| 398.37 | 19.96 |
-| 421.81 | 20.54 |
-| 453.41 | 21.29 |
-| 465.42 | 21.57 |
-| 465.42 | 21.57 |
-| 540.97 | 23.26 |
-| 553.14 | 23.52 |
-| 615.13 | 24.80 |
-| 615.13 | 24.80 |
-| 657.28 | 25.64 |
-| 660.14 | 25.69 |
-| 682.04 | 26.12 |
+| Eigenvalue | w/v   |
+| ---------- | ----- |
+| 88.44      | 9.40  |
+| 198.44     | 14.09 |
+| 198.44     | 14.09 |
+| 206.11     | 14.36 |
+| 208.39     | 14.44 |
+| 226.23     | 15.04 |
+| 226.23     | 15.04 |
+| 309.83     | 17.60 |
+| 355.22     | 18.85 |
+| 375.99     | 19.39 |
+| 375.99     | 19.39 |
+| 398.37     | 19.96 |
+| 421.81     | 20.54 |
+| 453.41     | 21.29 |
+| 465.42     | 21.57 |
+| 465.42     | 21.57 |
+| 540.97     | 23.26 |
+| 553.14     | 23.52 |
+| 615.13     | 24.80 |
+| 615.13     | 24.80 |
+| 657.28     | 25.64 |
+| 660.14     | 25.69 |
+| 682.04     | 26.12 |
 
+## Task 6 - finding the d
+
+Preamble: number of mids. Number of mids are the amount of points between each corner of the fractal. They are always equally spaced. This is illustrated in the following figure.
+
+![number of mids explaination](../py/images/n_mids_explaination.png)
+
+The d seems to be at about 1.6. It varies with level l, number of grid points between corners and with number of eigvals considered.
+
+Learnings:
+    2 mids seems to be sufficient. For 200 slns at level 3, the difference between 2 and 3 mids is miniscule. Note: for 4 mids, the value is completely different for some reason.
+
+| Level | N_mids | d     |
+| ----- | ------ | ----- |
+| 2     | 2      | 1.48  |
+| 2     | 3      | 1.511 |
+| 3     | 0      | 1.304 |
+| 3     | 1      | 1.335 |
+| 3     | 2      | 1.605 |
+| 3     | 3      | 1.604 |
+| 3     | 4      | 1.334 |
+| 4     | 1      | 1.516 |
+
+There is no clear convergence in these values. When slicing and only using the 120 first eigenvalues per solution, the results are different.
+
+| Level | N_mids | d     |
+| ----- | ------ | ----- |
+| 2     | 2      | 1.268 |
+| 2     | 3      | 1.310 |
+| 3     | 0      | 1.588 |
+| 3     | 1      | 1.633 |
+| 3     | 2      | 1.639 |
+| 3     | 3      | 1.641 |
+| 3     | 4      | 1.642 |
+| 4     | 1      | 1.659 |
+
+We now see a better convergence. The reason i chose to do this is that there is a kink in the data at about that number of eigenvalues, depending on level l and number of mid points. Because a different portion of the kink is included in the different data sets, its effect on the results was also varying. By cutting off the eigenvalues before this kink, we eliminated this moment.
+
+![Level 3 with 4 mids considering all eigenvalues](../py/images/finding_d_l3_4mids.png)
+![Level 3 with 4 mids considering only 120 eigenvalues](../py/images/finding_d_l3_4mids_sliced.png)
+
+Do note however that this curve does not follow the experimental values for very large number of eigenvalues.
+
+§[Level 3 with 1 mids, 1000 sols](../py/images/finding_d_l3_1mids_n%3D1000.png)
+
+This might however be due to problems in the data set, because for the very large number of eigenvalues we can se that the values do not follow the proposed shape at all. In fact they go towards Delta N = 0, which does not make sense according to the model explained in the task.
+
+The d-values are increasing slightly per increase in calculation size, but the amount of increase is very small so i think it is safe to say that for l = inf we could assume the d to be less than if not equal to 2.
+
+## Task 7 - higher order solutions
+
+Level 3, 2 mids
+
+| Eigenvalue | w/v   |
+| ---------- | ----- |
+| 87.73      | 9.37  |
+| 196.02     | 14.00 |
+| 203.51     | 14.27 |
+| 205.86     | 14.35 |
+| 224.38     | 14.98 |
+| 307.07     | 17.52 |
+| 351.73     | 18.75 |
+| 372.19     | 19.29 |
+| 394.49     | 19.86 |
+| 417.99     | 20.44 |
+
+Level 4, 2 mids
+
+| Eigenvalue | w/v   |
+| ---------- | ----- |
+| 88.58      | 9.41  |
+| 198.91     | 14.10 |
+| 206.62     | 14.37 |
+| 208.88     | 14.45 |
+| 226.59     | 15.05 |
+| 310.37     | 17.62 |
+| 355.91     | 18.87 |
+| 376.74     | 19.41 |
+| 399.11     | 19.98 |
+| 422.55     | 20.56 |
+
+## Task 8 - Clamped
+
+TODO
+
+what does it mean?

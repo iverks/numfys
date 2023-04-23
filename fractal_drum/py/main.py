@@ -12,7 +12,7 @@ from solver import solve, solve_clamped, solve_higher_order
 def main():
     side_length = 1.0
     depth = 4
-    n_mids = 1
+    n_mids = 2
     frac_xs, frac_ys = generate_fractal_drum(side_length, depth)
     print("Finished frac")
     # plot_fractal(frac_xs, frac_ys)
@@ -22,20 +22,20 @@ def main():
     grid = mark_inside_bfs(grid)
     print("Finished marking")
     # plot_grid(grid)
-    num_slns = 200
+    num_slns = 10
     start = time.time()
-    eigvals, eigfn = solve(grid, grid_const, num_slns, 1e-2, False)
-    # eigvals, eigfn = solve_higher_order(grid, grid_const, num_slns, 1e-2)
+    # eigvals, eigfn = solve(grid, grid_const, num_slns, 1e-2, False)
+    eigvals, eigfn = solve_higher_order(grid, grid_const, num_slns, 1e-2)
     # eigvals, eigfn = solve_clamped(grid, grid_const, num_slns, 1e-6)
     stop = time.time()
     print(f"Finished solving with in {stop - start} s")
 
-    with open(f"cache/eigvals_l{depth}_{n_mids}mids_{num_slns}vals.json", "w") as f:
-        json.dump(eigvals.tolist(), f)
+    # with open(f"cache/eigvals_l{depth}_{n_mids}mids_{num_slns}vals.json", "w") as f:
+    #     json.dump(eigvals.tolist(), f)
 
-    # print("Eigvals:")
-    # for eig in eigvals:
-    #     print(f"| {eig:.2f} | {np.sqrt(eig):.2f} |")
+    print("Eigvals:")
+    for eig in eigvals:
+        print(f"| {eig:.2f} | {np.sqrt(eig):.2f} |")
 
     # sln_num = 3
     # print(f"Plotting eigval = {eigvals[sln_num]}")
