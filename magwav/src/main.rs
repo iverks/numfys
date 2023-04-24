@@ -14,6 +14,41 @@ use rand::{thread_rng, Rng};
 use rand_distr::uniform;
 use system::{Magnet, MagneticSystem, E_Z};
 
+fn testy() {
+    let straight = {
+        let (mx, my) = (0.0, 0.0);
+        Magnet::new(mx, my, (1.0 - mx.powi(2) - my.powi(2)).sqrt())
+    };
+
+    let tilted = {
+        let (mx, my) = (0.25, 0.0);
+        Magnet::new(mx, my, (1.0 - mx.powi(2) - my.powi(2)).sqrt())
+    };
+
+    let mut sys = MagneticSystem {
+        magnets: Array3::from_elem((1, 1, 10), straight),
+        dampening_constant: 0.0,
+        coupling_constant: 0.1,
+        anisotropy_constant: 1e-3,
+        temperature: 0.0e-4,
+        magnetic_field: 0.0 * E_Z,
+        timestep: 1e-15,
+    };
+
+    sys.magnets[(0, 0, 5)] = tilted;
+
+    let mut states = vec![sys.magnets.clone()];
+
+    for _ in 0..200 {
+        for _ in 0..1 {
+            sys.step();
+        }
+        states.push(sys.magnets.clone());
+    }
+
+    plot_system(&states, "testplot.gif", 100, PlotDirection::Task2_1_1).unwrap();
+}
+
 fn task_2_1_1() {
     let start = Instant::now();
     let magnet = {
@@ -155,8 +190,9 @@ fn task_2_2_2_1() {
 }
 
 fn main() {
+    testy();
     // task_2_1_1();
     // task_2_1_2();
     // task_2_1_3();
-    task_2_2_2_1();
+    // task_2_2_2_1();
 }
