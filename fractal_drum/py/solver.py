@@ -160,10 +160,17 @@ def solve_higher_order(
 
 
 def solve_clamped(grid: np.ndarray, grid_const: float, num_slns: int, tol: float):
+    """stencil yoinked from http://rodolphe-vaillant.fr/entry/57/2d-biharmonic-stencil-aka-bilaplacian-operator
+    0  0  1  0  0
+    0  2 -8  2  0
+    1 -8 20 -8  1
+    0  2 -8  2  0
+    0  0  1  0  0
+    """
     n = grid.shape[0]  # Assume square matrix
     rows, cols, vals = [], [], []
 
-    common_const = 1 / (6 * grid_const**4)
+    common_const = 1 / (grid_const**4)
     for i in range(n**2):
         y = i // n
         x = i % n
@@ -175,13 +182,25 @@ def solve_clamped(grid: np.ndarray, grid_const: float, num_slns: int, tol: float
         cols.append(y * n + x)
         vals.append((56 * 2) * common_const)
 
-        for dy, dx in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
-            for dm, coeff in zip(range(1, 3 + 1), [-39, 12, -1]):
-                new_y = y + dy * dm
-                new_x = x + dx * dm
+        coeffs = np.array(
+            [
+                [0, 0, 1, 0, 0],
+                [0, 2, -8, 2, 0],
+                [1, -8, 20, -8, 1],
+                [0, 2, -8, 2, 0],
+                [0, 0, 1, 0, 0],
+            ]
+        )
+        for dy in range(len(coeffs)):
+            for dx in range(len(coeffs[dy])):
+                new_y = y + dy - 2
+                new_x = x + dx - 2
                 if not (0 <= new_x < n and 0 <= new_y < n):
                     continue
                 if grid[new_y, new_x] != 2:
+                    continue
+                coeff = coeffs[dy, dx]
+                if coeff == 0:
                     continue
 
                 rows.append(i)

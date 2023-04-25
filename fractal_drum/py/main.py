@@ -11,8 +11,8 @@ from solver import solve, solve_clamped, solve_higher_order
 
 def main():
     side_length = 1.0
-    depth = 5
-    n_mids = 0
+    depth = 3
+    n_mids = 1
     frac_xs, frac_ys = generate_fractal_drum(side_length, depth)
     print("Finished frac")
     # plot_fractal(frac_xs, frac_ys)
@@ -24,26 +24,28 @@ def main():
     # plot_grid(grid)
     num_slns = 10
     start = time.time()
-    eigvals, eigfn = solve(grid, grid_const, num_slns, 1e-2, True)
+    # eigvals, eigfn = solve(grid, grid_const, num_slns, 1e-2, True)
     # eigvals, eigfn = solve_higher_order(grid, grid_const, num_slns, 1e-2)
-    # eigvals, eigfn = solve_clamped(grid, grid_const, num_slns, 1e-2)
+    eigvals, eigfn = solve_clamped(grid, grid_const, num_slns, 1e-2)
     stop = time.time()
     print(f"Finished solving with in {stop - start} s")
 
     # with open(f"cache/eigvals_l{depth}_{n_mids}mids_{num_slns}vals.json", "w") as f:
     #     json.dump(eigvals.tolist(), f)
 
-    # print("Eigvals:")
-    # for eig in eigvals:
-    #     print(f"| {eig:.2f} | {np.sqrt(eig):.2f} |")
+    print("Eigvals:")
+    for eig in eigvals:
+        print(f"| {eig:.2f} | {np.sqrt(eig):.2f} |")
 
-    # sln_num = 3
+    # sln_num = 1
     # print(f"Plotting eigval = {eigvals[sln_num]}")
     # plot_sln_im(eigfn[sln_num], grid)
 
-    # for sln_num in range(5):
-    #     print(f"Plotting eigval = {eigvals[sln_num]}")
-    #     plot_sln(eigfn[sln_num], f"images/solved_l4_5pt_eig{eigvals[sln_num]:.2f}.png")
+    for sln_num in range(5):
+        print(f"Plotting eigval = {eigvals[sln_num]}")
+        plot_sln(
+            eigfn[sln_num]
+        )  # , f"images/solved_l4_5pt_eig{eigvals[sln_num]:.2f}.png")
 
 
 if __name__ == "__main__":

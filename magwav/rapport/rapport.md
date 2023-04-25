@@ -45,3 +45,20 @@ The dz sets the ground level, and the J determines the slope and thus the top.
 
 ![omega sketch](../images/omega_sketch.jpg)
 
+### Do DFT and plot
+
+I learned that by reducing the dampening constant, i get a more defined line. A lot of the plot is zero, so i have to crop the image. Right is lower alpha=0.01, right is alpha=0.2. Ignore legend.
+
+![alpha=0.2](../images/dispersion_relation_a0.2_wo_fit.jpg)
+![alpha=0.01](../images/dispersion_relation_a0.01_wo_fit.jpg)
+
+### Fitting omega sketch to picture
+
+Since the axis on the resulting image don't really make sense, I don't get the point of explaining how scaling was done, but here we go anyways. I cropped out a ton of the dft image. Then i set the extents to be [0, pi] for ka and [0, 1e15] for ω. I additionally scaled the ω function by 0.7. For dz = 1meV and J = 10meV i aquire this image (will do dz = 3 later):
+
+![dispersion relation](../images/dispersion_relation_a0.01_J10_dz1.jpg)
+
+
+
+
+

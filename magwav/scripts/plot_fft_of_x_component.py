@@ -25,17 +25,19 @@ cropped = shifted[
 # larges = np.nonzero(filter)
 # plt.scatter(larges[1], larges[0])
 
-im = plt.imshow(cropped, aspect="auto", extent=(0, np.pi, 0, 10e-17), origin="lower")
-plt.xlabel("k")
-plt.ylabel("w")
-plt.ylim(bottom=0)
-plt.clim(None, 40_000)
-plt.colorbar(im)
+fig, ax = plt.subplots()
+im = ax.imshow(cropped, aspect="auto", origin="lower", extent=(0, np.pi, 0, 10e16))
+im.set_clim(None, 40_000)
+ax.set_xlabel("k")
+ax.set_ylabel("w")
+# ax.set_ylim(bottom=0)
+fig.colorbar(im)
 hbar = 6.582e-16  # eV * s
 w = lambda ka, J, dz: (2 * dz + 2 * J * (1 - np.cos(ka))) / hbar
 ka = np.linspace(0, np.pi)
-plt.plot(ka, w(ka, 10, 3), color="red")
-# plt.savefig(cur_dir / f"../plots/{fname}.jpg")
+ax.plot(ka, w(ka, 10, 1) * 0.7, color="red", label="J=10, dz=1")
+ax.legend()
+plt.savefig(cur_dir / f"../plots/{fname}_wit_fit_J7_dz1.jpg")
 plt.show()
 
 # # Testing the plotting and analysis

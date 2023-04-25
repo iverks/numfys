@@ -160,7 +160,7 @@ fn task_2_1_3() {
     println!("Simulation took {} ms", start.elapsed().as_millis());
 }
 
-fn task_2_2_2_1() {
+fn task_2_2_2() {
     let start = Instant::now();
 
     let mut magnets = Array3::from_elem((1, 1, 50), Magnet::new(0.0, 0.0, 1.0));
@@ -169,7 +169,7 @@ fn task_2_2_2_1() {
         magnets,
         dampening_constant: 0.01,
         coupling_constant: 10.0 * 1e-3,
-        anisotropy_constant: 1e-3,
+        anisotropy_constant: 3e-3,
         temperature: 0.5 * 1e-3,
         magnetic_field: 0.0 * E_Z,
         timestep: 0.5 * 1e-15,
@@ -200,5 +200,5 @@ fn main() {
     // task_2_1_1();
     // task_2_1_2();
     // task_2_1_3();
-    task_2_2_2_1();
+    task_2_2_2();
 }
