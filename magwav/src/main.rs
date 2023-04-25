@@ -21,21 +21,27 @@ fn testy() {
     };
 
     let tilted = {
-        let (mx, my) = (0.25, 0.0);
+        let (mx, my) = (-0.2, 0.0);
+        Magnet::new(mx, my, (1.0 - mx.powi(2) - my.powi(2)).sqrt())
+    };
+
+    let tilted2 = {
+        let (mx, my) = (0.2, 0.0);
         Magnet::new(mx, my, (1.0 - mx.powi(2) - my.powi(2)).sqrt())
     };
 
     let mut sys = MagneticSystem {
         magnets: Array3::from_elem((1, 1, 10), straight),
         dampening_constant: 0.0,
-        coupling_constant: 0.1,
-        anisotropy_constant: 1e-3,
+        coupling_constant: 0.000,
+        anisotropy_constant: 100e-3,
         temperature: 0.0e-4,
         magnetic_field: 0.0 * E_Z,
-        timestep: 1e-15,
+        timestep: 5e-16,
     };
 
     sys.magnets[(0, 0, 5)] = tilted;
+    sys.magnets[(0, 0, 4)] = tilted2;
 
     let mut states = vec![sys.magnets.clone()];
 
@@ -46,7 +52,7 @@ fn testy() {
         states.push(sys.magnets.clone());
     }
 
-    plot_system(&states, "testplot.gif", 100, PlotDirection::Task2_1_1).unwrap();
+    plot_system(&states, "testplot.gif", 100, PlotDirection::Testy).unwrap();
 }
 
 fn task_2_1_1() {
@@ -161,7 +167,7 @@ fn task_2_2_2_1() {
 
     let mut sys = MagneticSystem {
         magnets,
-        dampening_constant: 0.2,
+        dampening_constant: 0.01,
         coupling_constant: 10.0 * 1e-3,
         anisotropy_constant: 1e-3,
         temperature: 0.5 * 1e-3,
@@ -190,9 +196,9 @@ fn task_2_2_2_1() {
 }
 
 fn main() {
-    testy();
+    // testy();
     // task_2_1_1();
     // task_2_1_2();
     // task_2_1_3();
-    // task_2_2_2_1();
+    task_2_2_2_1();
 }

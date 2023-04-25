@@ -142,6 +142,8 @@ Preamble: number of mids. Number of mids are the amount of points between each c
 
 ![number of mids explaination](../py/images/n_mids_explaination.png)
 
+Assuming ω=ω/v because the task has given no indication on how to determine v. 
+
 The d seems to be at about 1.6. It varies with level l, number of grid points between corners and with number of eigvals considered.
 
 Learnings:

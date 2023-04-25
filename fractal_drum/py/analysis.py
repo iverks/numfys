@@ -17,13 +17,13 @@ def density_of_states(w: np.array, N: np.array):
 
 def main():
     # filename = "cache/eigvals_l2_2mids_1000vals.json"
-    filename = "cache/eigvals_l2_3mids_1000vals.json"
+    # filename = "cache/eigvals_l2_3mids_1000vals.json"
     # filename = "cache/eigvals_l3_0mids_1000vals.json"
     # filename = "cache/eigvals_l3_1mids_1000vals.json"
     # filename = "cache/eigvals_l3_2mids_200vals.json"  # 2
     # filename = "cache/eigvals_l3_3mids_200vals.json"
     # filename = "cache/eigvals_l3_4mids_200vals.json"
-    # filename = "cache/eigvals_l4_1mids_600vals.json"
+    filename = "cache/eigvals_l4_1mids_600vals.json"
     with open(filename, "r") as f:
         eigvals = np.array(json.load(f)[::-1])
         # print(len(eigvals))

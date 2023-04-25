@@ -11,6 +11,7 @@ use plotters::{
 };
 
 pub enum PlotDirection {
+    Testy,
     Task2_1_1,
     Task2_1_2,
     Task2_1_3,
@@ -25,7 +26,7 @@ pub fn plot_system(
 ) -> ah::Result<()> {
     let root = BitMapBackend::gif("plots/".to_owned() + filename, (600, 400), frame_delay)?
         .into_drawing_area();
-    let (minx, maxx) = (-100.0, 100.0);
+    let (minx, maxx) = (-1.0, 1.0);
     let (miny, maxy) = (-1.0, 1.0);
     let (minz, maxz) = (-1.0, 1.0);
 
@@ -45,6 +46,10 @@ pub fn plot_system(
             p.add_transform(ProjectionMatrix::rotate(-PI * 0.5, 0.0, 0.0));
             p.scale = 0.9;
             match plot_direction {
+                PlotDirection::Testy => {
+                    p.yaw = 0.0;
+                    p.pitch = PI * 0.5 - 0.01;
+                }
                 PlotDirection::Task2_1_3 => {
                     p.yaw = 0.1;
                     p.pitch = PI * 0.5 - 0.01;
@@ -93,14 +98,13 @@ pub fn plot_system(
                         .into_iter()
                     };
 
+                    let mut pts = vec![(x, y, z), (x + magnet.x, y + magnet.y, z + magnet.z)];
+                    match plot_direction {
+                        PlotDirection::Testy => pts.push((x + magnet.x, y + magnet.y, z)),
+                        _ => (),
+                    }
                     chart
-                        .draw_series(
-                            LineSeries::new(
-                                [(x, y, z), (x + magnet.x, y + magnet.y, z + magnet.z)].into_iter(),
-                                &ORANGE_600,
-                            )
-                            .point_size(3),
-                        )
+                        .draw_series(LineSeries::new(pts.into_iter(), &ORANGE_600).point_size(3))
                         .unwrap();
                 }
             }

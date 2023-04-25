@@ -75,11 +75,14 @@ def solve(
             cols.append(new_y * n + new_x)
             vals.append(-1.0 * common_const)
 
-    coom: coo_matrix = coo_matrix((vals, (rows, cols)), shape=(n * n, n * n))
-    csc: csc_matrix = coom.tocsc()
+    # coom: coo_matrix = coo_matrix((vals, (rows, cols)), shape=(n * n, n * n))
+    # csc: csc_matrix = coom.tocsc()
+    csc = csc_matrix((vals, (rows, cols)), shape=(n * n, n * n))
 
     # Remove 0 rows takk til viljar
     csc, indices = remove_zeros(csc)
+    print(csc.shape)
+    print(csc.data.nbytes)
 
     if not get_fns:
         return (
@@ -88,6 +91,8 @@ def solve(
         )
 
     eigvals, eigfns = eigsh(csc, num_slns, which="SA", tol=tol)
+
+    print(eigfns.nbytes)
 
     result_fns = []
     for num in range(num_slns):
@@ -171,7 +176,7 @@ def solve_clamped(grid: np.ndarray, grid_const: float, num_slns: int, tol: float
         vals.append((56 * 2) * common_const)
 
         for dy, dx in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
-            for dm, coeff in zip(range(1, 3 + 1), [39, -12, 1]):
+            for dm, coeff in zip(range(1, 3 + 1), [-39, 12, -1]):
                 new_y = y + dy * dm
                 new_x = x + dx * dm
                 if not (0 <= new_x < n and 0 <= new_y < n):
