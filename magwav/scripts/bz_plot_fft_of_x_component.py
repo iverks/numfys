@@ -41,5 +41,5 @@ dz = 25
 ax.plot(ka, w(ka, J, dz) * 0.7, color="red", label=f"J={J}, dz={dz}")
 ax.legend()
 ax.set_ylim(bottom=0)
-# plt.savefig(cur_dir / f"../images/2.2.2_bz/{fname}.jpg")
+plt.savefig(cur_dir / f"../images/2.2.2_bz/{fname}.jpg", dpi=200)
 plt.show()
