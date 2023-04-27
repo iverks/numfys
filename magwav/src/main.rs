@@ -168,10 +168,45 @@ fn task_2_2_2() {
     let mut sys = MagneticSystem {
         magnets,
         dampening_constant: 0.01,
+        coupling_constant: -10.0 * 1e-3,
+        anisotropy_constant: 25e-3,
+        temperature: 0.5 * 1e-3,
+        magnetic_field: 0.0 * E_Z,
+        timestep: 0.5 * 1e-15,
+    };
+    let mut states = vec![sys.magnets.clone()];
+    let mut x_components: Vec<Vec<f64>> = vec![sys.magnets.iter().map(|mag| mag.x).collect()];
+
+    // 60 000 * 0.5 fs = 30 ps
+    for _ in 0..60000 {
+        for _ in 0..1 {
+            sys.step();
+            x_components.push(sys.magnets.iter().map(|mag| mag.x).collect());
+        }
+        states.push(sys.magnets.clone());
+        // dbg!(&states);
+    }
+
+    plot_system(&states, "testplot.gif", 100, PlotDirection::Task2_2_2_1).unwrap();
+    std::fs::write(
+        "plots/x_components.json",
+        serde_json::to_string_pretty(&x_components).expect("Cant jsonify"),
+    )
+    .expect("cant write json to file");
+}
+
+fn task_2_2_5() {
+    let start = Instant::now();
+
+    let mut magnets = Array3::from_elem((1, 1, 50), Magnet::new(0.0, 0.0, 1.0));
+
+    let mut sys = MagneticSystem {
+        magnets,
+        dampening_constant: 0.01,
         coupling_constant: 10.0 * 1e-3,
         anisotropy_constant: 3e-3,
         temperature: 0.5 * 1e-3,
-        magnetic_field: 0.0 * E_Z,
+        magnetic_field: 0.5 * E_Z,
         timestep: 0.5 * 1e-15,
     };
     let mut states = vec![sys.magnets.clone()];
@@ -201,4 +236,5 @@ fn main() {
     // task_2_1_2();
     // task_2_1_3();
     task_2_2_2();
+    // task_2_2_5();
 }

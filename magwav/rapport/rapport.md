@@ -4,24 +4,24 @@
 
 I managed to set up the toy system. It behaves as seen below
 
-![toy_system.gif](../plots/toy_system.gif)
+![toy_system.gif](../plots/toy/toy_system.gif)
 
 ### Single spin
 
 With a single spin, the magnet precesses counter-clockwise about the z-axis.
 
-![gif of precessing](../plots/2.1_T=0.0,a=0.0.gif)
+![gif of precessing](../plots/2.1.1/2.1_T=0.0,a=0.0.gif)
 
 With nonzero dampening constant the precessing slows down and the single magnet tends toward the z-axis. Higher dampening constant gives more slowing down and more tendance towards the z-axis. Values: d$_z$ = 1 meV (1e-3)
 
-![some dampening](../plots/2.1_T=0.0,a=0.1.gif), ![more dampening](../plots/2.1_T=0.0,a=0.5.gif)
+![some dampening](../plots/2.1.1/2.1_T=0.0,a=0.1.gif), ![more dampening](../plots/2.1.1/2.1_T=0.0,a=0.5.gif)
 
 When i set the temperature to a non-zero value, the dampening is less intense. The system still tends toward the z-axis, but this is also less intense. Both of these effects are now more intense when the precession speed or distance from z-axis is great and less when the values are small.
 the dampening is cancelled, but the system still tends toward the z-axis. This is until it finds an equilibrium distance away from the z-axis where it stays still. 
 
 Note: T=0.1 means 0.1 d$_z$ or 0.1 meV (1e-4)
 
-![with temperature](../plots/2.1_T=0.1,a=0.1.gif), ![more temperature](../plots/2.1_T=0.5,a=0.1.gif)
+![with temperature](../plots/2.1.1/2.1_T=0.1,a=0.1.gif), ![more temperature](../plots/2.1.1/2.1_T=0.5,a=0.1.gif)
 
 ### Exploring coupling with N = 10
 
@@ -43,22 +43,40 @@ From sketching omega we can see that we get a increasing function, with a smalle
 
 The dz sets the ground level, and the J determines the slope and thus the top.
 
-![omega sketch](../images/omega_sketch.jpg)
+![omega sketch](../images/2.2.2/omega_sketch.jpg)
 
 ### Do DFT and plot
 
 I learned that by reducing the dampening constant, i get a more defined line. A lot of the plot is zero, so i have to crop the image. Right is lower alpha=0.01, right is alpha=0.2. Ignore legend.
 
-![alpha=0.2](../images/dispersion_relation_a0.2_wo_fit.jpg)
-![alpha=0.01](../images/dispersion_relation_a0.01_wo_fit.jpg)
+![alpha=0.2](../images/2.2.2/dispersion_relation_a0.2_wo_fit.jpg)
+![alpha=0.01](../images/2.2.2/dispersion_relation_a0.01_wo_fit.jpg)
 
 ### Fitting omega sketch to picture
 
-Since the axis on the resulting image don't really make sense, I don't get the point of explaining how scaling was done, but here we go anyways. I cropped out a ton of the dft image. Then i set the extents to be [0, pi] for ka and [0, 1e15] for ω. I additionally scaled the ω function by 0.7. For dz = 1meV and J = 10meV i aquire this image (will do dz = 3 later):
+Since the axis on the resulting image don't really make sense, I don't get the point of explaining how scaling was done, but here we go anyways. I cropped out a ton of the dft image. Then i set the extents to be [0, pi] for ka and [0, 1e15] for ω. I additionally scaled the ω function by 0.7. For dz = 1meV and J = 10meV i aquire this image (will do dz = 3meV later):
 
-![dispersion relation](../images/dispersion_relation_a0.01_J10_dz1.jpg)
+![dispersion relation](../images/2.2.2/dispersion_relation_a0.01_J10_dz1.jpg)
+
+### Other params J and dz
+
+The plots from now on include the entire brillouin zone.
+
+When changing dz from 1meV to 3meV we see that as we expect, the entire line is shifted slightly upwards. We can also see that it is shifted slightly more than we expected, as the theoretical red line is a little below the line in the image.
 
 
+![dispersion relation](../images/2.2.2_bz/dispersion_relation_a0.01_J10_dz3.jpg)
+
+
+By doubling J to 20meV we get a twice as tall slope, and the analytic expression fits well with the simulated results. This seems to fit better with theory than the previous case, but that might be two wrongs making a right, as the line does not fit as well at k≈0.
+
+![double J dispersion relation](../images/2.2.2_bz/dispersion_relation_J20_dz3_a0.01.jpg)
+
+For J = -10meV and dz = 6meV, the theoretical dispersion relation gives ω < 0 at a large part of the 1st brillouin zone. The simulated data does not look anything like the theory. What does it mean???
+
+![negative J dispersion relation](../images/2.2.2_bz/dispersion_relation_J-10_dz6_a0.01.jpg)
+
+I also tried J = -10mev, but with dz = 25meV such that the theoretical line never crosses y=0.
 
 
 
