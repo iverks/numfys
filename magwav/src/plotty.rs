@@ -16,6 +16,7 @@ pub enum PlotDirection {
     Task2_1_2,
     Task2_1_3,
     Task2_2_2_1,
+    Task2_3_1,
 }
 
 pub fn plot_system(
@@ -26,9 +27,15 @@ pub fn plot_system(
 ) -> ah::Result<()> {
     let root = BitMapBackend::gif("plots/".to_owned() + filename, (600, 400), frame_delay)?
         .into_drawing_area();
-    let (minx, maxx) = (-1.0, 1.0);
-    let (miny, maxy) = (-1.0, 1.0);
-    let (minz, maxz) = (-1.0, 1.0);
+    let (mut minx, mut maxx) = (-1.0, 1.0);
+    let (mut miny, mut maxy) = (-1.0, 1.0);
+    let (mut minz, mut maxz) = (-1.0, 1.0);
+
+    if let PlotDirection::Task2_3_1 = plot_direction {
+        (minx, maxx) = (-40.0, 40.0);
+        (miny, maxy) = (-40.0, 40.0);
+        (minz, maxz) = (-40.0, 40.0);
+    }
 
     for (frame, magnets) in states.iter().enumerate() {
         root.fill(&WHITE).unwrap();
@@ -55,8 +62,8 @@ pub fn plot_system(
                     p.pitch = PI * 0.5 - 0.01;
                 }
                 PlotDirection::Task2_2_2_1 => {
-                    p.yaw = 0.1;
-                    p.pitch = PI * 0.5 - 0.01;
+                    p.yaw = 0.0;
+                    p.pitch = PI * 0.5;
                     // p.pitch = PI * 0.5 - 0.4;
                 }
                 _ => (),
@@ -104,7 +111,7 @@ pub fn plot_system(
                         _ => (),
                     }
                     chart
-                        .draw_series(LineSeries::new(pts.into_iter(), &ORANGE_600).point_size(3))
+                        .draw_series(LineSeries::new(pts.into_iter(), &ORANGE_600))
                         .unwrap();
                 }
             }

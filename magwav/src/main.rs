@@ -5,6 +5,7 @@ mod system;
 #[cfg(test)]
 mod tests;
 
+use core::num;
 use std::time::{self, Instant};
 
 use nalgebra as na;
@@ -242,16 +243,13 @@ fn task_2_2_6() {
         magnet.z *= -1.0;
     }
 
-    let printr: Vec<_> = magnets.iter().map(|mag| mag.z).collect();
-    println!("{printr:?}");
-
     let mut sys = MagneticSystem {
         magnets,
         dampening_constant: 0.001,
-        coupling_constant: 30.0 * 1e-3,
-        anisotropy_constant: 0.01e-3,
-        temperature: 0.5 * 1e-3,
-        magnetic_field: 0.0 * E_Z,
+        coupling_constant: -30.0 * 1e-3,
+        anisotropy_constant: 0.01 * 1e-3,
+        temperature: 0.005 * 1e-3,
+        magnetic_field: 1.5 * E_Z,
         timestep: 0.5 * 1e-15,
     };
     let mut states = vec![sys.magnets.clone()];
@@ -269,8 +267,53 @@ fn task_2_2_6() {
 
     plot_system(&states, "testplot.gif", 100, PlotDirection::Task2_2_2_1).unwrap();
     std::fs::write(
-        "plots/x_w_mag.json",
+        "plots/x_afm.json",
         serde_json::to_string_pretty(&x_components).expect("Cant jsonify"),
+    )
+    .expect("cant write json to file");
+}
+
+fn task_2_3_1() {
+    let start = Instant::now();
+    // let mut magnets = Array3::from_elem((20, 20, 20), Magnet::new(0.0, 0.0, 1.0));
+    let magnets = {
+        let mut rng = thread_rng();
+        Array3::from_shape_fn((20, 20, 20), |_| {
+            let magnet = Magnet::from_fn(|_, _| rng.gen_range(-1.0..1.0));
+            magnet.normalize()
+        })
+    };
+
+    let mut sys = MagneticSystem {
+        magnets,
+        dampening_constant: 0.001,
+        coupling_constant: -30.0 * 1e-3,
+        anisotropy_constant: 0.01 * 1e-3,
+        temperature: 0.005 * 1e-3,
+        magnetic_field: 1.5 * E_Z,
+        timestep: 0.5 * 1e-15,
+    };
+    let mut states = vec![sys.magnets.clone()];
+    let num_mags = sys.magnets.len() as f64;
+    let summy: f64 = sys.magnets.iter().map(|mag| mag.z).sum();
+    let mut ms: Vec<f64> = vec![summy / num_mags];
+
+    // 60 000 * 0.5 fs = 30 ps
+    for _ in 0..300 {
+        for _ in 0..200 {
+            sys.step();
+            let summy: f64 = sys.magnets.iter().map(|mag| mag.z).sum();
+            ms.push(summy / num_mags);
+        }
+        states.push(sys.magnets.clone());
+    }
+
+    println!("Finished sim in {} sec", start.elapsed().as_secs());
+
+    plot_system(&states, "task_2_3_1.gif", 100, PlotDirection::Task2_3_1).unwrap();
+    std::fs::write(
+        "plots/avgs_2_3_1.json",
+        serde_json::to_string(&ms).expect("Cant jsonify"),
     )
     .expect("cant write json to file");
 }
@@ -281,5 +324,7 @@ fn main() {
     // task_2_1_2();
     // task_2_1_3();
     // task_2_2_2();
-    task_2_2_5();
+    // task_2_2_5();
+    // task_2_2_6();
+    task_2_3_1();
 }

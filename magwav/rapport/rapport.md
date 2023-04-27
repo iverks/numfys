@@ -79,4 +79,10 @@ For J = -10meV and dz = 6meV, the theoretical dispersion relation gives ω < 0 a
 I also tried J = -10mev, but with dz = 25meV such that the theoretical line never crosses y=0.
 
 
+### Added magnetic field B
+
+![](../images/2.2.5/x_w_mag_B0.10_J10_dz3_a0.001.jpg)
+![](../images/2.2.5/x_w_mag_B0.11_J10_dz3_a0.001.jpg)
+![](../images/2.2.5/x_w_mag_B0.14_J10_dz3_a0.001.jpg)
+![](../images/2.2.5/x_w_mag_B0.20_J10_dz3_a0.001.jpg)
 
