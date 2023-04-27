@@ -202,7 +202,7 @@ fn task_2_2_5() {
 
     let mut sys = MagneticSystem {
         magnets,
-        dampening_constant: 0.01,
+        dampening_constant: 0.001,
         coupling_constant: 10.0 * 1e-3,
         anisotropy_constant: 3e-3,
         temperature: 0.5 * 1e-3,
@@ -224,7 +224,7 @@ fn task_2_2_5() {
 
     plot_system(&states, "testplot.gif", 100, PlotDirection::Task2_2_2_1).unwrap();
     std::fs::write(
-        "plots/x_components.json",
+        "plots/x_w_mag.json",
         serde_json::to_string_pretty(&x_components).expect("Cant jsonify"),
     )
     .expect("cant write json to file");
@@ -235,6 +235,6 @@ fn main() {
     // task_2_1_1();
     // task_2_1_2();
     // task_2_1_3();
-    task_2_2_2();
-    // task_2_2_5();
+    // task_2_2_2();
+    task_2_2_5();
 }
