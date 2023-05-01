@@ -81,10 +81,17 @@ I also tried J = -10mev, but with dz = 25meV such that the theoretical line neve
 
 ### Added magnetic field B
 
+We can see that with an increasing magnetic field, the line gets wider and more diffuse, and rises on the w-axis. The following figures are of B = 0.1, 0.11 and 0.14 meV.
+
 ![](../images/2.2.5/x_w_mag_B0.10_J10_dz3_a0.001.jpg)
 ![](../images/2.2.5/x_w_mag_B0.11_J10_dz3_a0.001.jpg)
 ![](../images/2.2.5/x_w_mag_B0.14_J10_dz3_a0.001.jpg)
-![](../images/2.2.5/x_w_mag_B0.20_J10_dz3_a0.001.jpg)
+
+### Antiferromagnet
+
+When i set the system to be antiferromagnetic with J = -03 meV and dz=0.01 we get a spotty dispersion relation.
+
+![](../images/2.2.6/x_afm_J-30_dz0.01_a0.001.jpg)
 
 ## Task 3 - Ferromagnetic phase diagrams
 
@@ -96,6 +103,14 @@ We can also see this from the full size system, although it is a little less cle
 
 ![](../images/2.3/task_2_3_1_big.gif)
 
-We can see that the M falls off slightly for the nonzero T then converges at some value. In this plot J=10 meV, dz=10 meV and $k_BT=0.1$ means $k_BT = 0.1 \cdot J = 1 meV$.
+We can see that the M falls off slightly for the nonzero T then converges at some value. In this plot J=10 meV, dz=10 meV and $k_BT=0.1$ means $k_BT = 0.1 \cdot J = 1 meV$. Note that for T=0.0 in this figure the system is initialized randomly.
 
-![](../images/2.3/avgs_2_3_1_T0.0%26T0.1.jpg)
+![](../images/2.3/avgs_2_3_1_T0.0&T0.1.jpg)
+
+We see that with increasing T the M is lower. Although the method
+
+![](../images/2.3/m_per_time.jpg)
+
+We can also see the critical temperature of 1.7 J.
+
+![](../images/2.3/mavg_per_T.jpg)

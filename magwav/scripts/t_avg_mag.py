@@ -77,9 +77,11 @@ def task233():
         time = np.arange(0, len(xs), 1.0)
 
         color = next(ax._get_lines.prop_cycler)["color"]
-        ax.plot(xs, label=r"$k_BT =$" + T, color=color)
+        ax.plot(time, xs, label=r"$k_BT =$" + T, color=color)
         ax.hlines(mavg, border, len(xs), colors=color, linestyles="dashed")
     ax.set_title("J=10 meV, dz=10 meV")
+    ax.set_xlabel("M")
+    ax.set_ylabel("t [ns]")
     # ax.legend()
     # plt.savefig(cur_dir / f"../images/2.3/m_per_time.jpg", dpi=200)
     plt.show()

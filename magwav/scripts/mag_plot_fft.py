@@ -24,6 +24,7 @@ cropped = shifted[:rng, :]
 
 fig, ax = plt.subplots()
 im = ax.imshow(cropped, aspect="auto", origin="lower", extent=(-np.pi, np.pi, 0, 4e17))
+im.set_clim(None, 35000)
 ax.set_xlabel("k")
 ax.set_ylabel("w")
 fig.colorbar(im)
