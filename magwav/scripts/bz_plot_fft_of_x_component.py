@@ -9,7 +9,7 @@ from sketch_omega import plot_omega
 cur_dir = Path(__file__).parent
 
 fname = "x_components_J-10_dz6_a0.01"
-# fname = "x_components_J10_dz3_a0.01"
+fname = "x_components_J10_dz3_a0.01"
 
 with open(cur_dir / f"../plots/{fname}.json", "r") as readfile:
     components = json.load(readfile)
@@ -41,5 +41,5 @@ dz = 25
 ax.plot(ka, w(ka, J, dz) * 0.7, color="red", label=f"J={J}, dz={dz}")
 ax.legend()
 ax.set_ylim(bottom=0)
-plt.savefig(cur_dir / f"../images/2.2.2_bz/{fname}.jpg", dpi=200)
+# plt.savefig(cur_dir / f"../images/2.2.2_bz/{fname}.jpg", dpi=200)
 plt.show()

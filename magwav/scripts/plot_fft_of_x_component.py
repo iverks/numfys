@@ -37,7 +37,7 @@ w = lambda ka, J, dz: (2 * dz + 2 * J * (1 - np.cos(ka))) / hbar
 ka = np.linspace(0, np.pi)
 ax.plot(ka, w(ka, 20, 3) * 0.7, color="red", label="J=-10, dz=6")
 ax.legend()
-plt.savefig(cur_dir / f"../images/2.2.2/{fname}.jpg")
+# plt.savefig(cur_dir / f"../images/2.2.2/{fname}.jpg")
 plt.show()
 
 # # Testing the plotting and analysis

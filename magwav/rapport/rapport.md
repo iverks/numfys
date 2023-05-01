@@ -86,3 +86,16 @@ I also tried J = -10mev, but with dz = 25meV such that the theoretical line neve
 ![](../images/2.2.5/x_w_mag_B0.14_J10_dz3_a0.001.jpg)
 ![](../images/2.2.5/x_w_mag_B0.20_J10_dz3_a0.001.jpg)
 
+## Task 3 - Ferromagnetic phase diagrams
+
+From a simulation of a slightly smaller system we can see that the spins align quickly.
+
+![](../images/2.3/task_2_3_1.gif)
+
+We can also see this from the full size system, although it is a little less clear.
+
+![](../images/2.3/task_2_3_1_big.gif)
+
+We can see that the M falls off slightly for the nonzero T then converges at some value. In this plot J=10 meV, dz=10 meV and $k_BT=0.1$ means $k_BT = 0.1 \cdot J = 1 meV$.
+
+![](../images/2.3/avgs_2_3_1_T0.0%26T0.1.jpg)

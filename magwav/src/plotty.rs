@@ -32,9 +32,9 @@ pub fn plot_system(
     let (mut minz, mut maxz) = (-1.0, 1.0);
 
     if let PlotDirection::Task2_3_1 = plot_direction {
-        (minx, maxx) = (-40.0, 40.0);
-        (miny, maxy) = (-40.0, 40.0);
-        (minz, maxz) = (-40.0, 40.0);
+        (minx, maxx) = (-10.0, 10.0);
+        (miny, maxy) = (-10.0, 10.0);
+        (minz, maxz) = (-10.0, 10.0);
     }
 
     for (frame, magnets) in states.iter().enumerate() {
@@ -138,7 +138,7 @@ pub fn plot_system(
     root.present().expect(
         "Unable to write result to file, please make sure 'plots' dir exists under current dir",
     );
-    println!("Result has been saved to testplot.gif");
+    println!("Result has been saved to {filename}");
 
     Ok(())
 }
