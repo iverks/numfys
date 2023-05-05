@@ -95,6 +95,8 @@ impl MagneticSystem {
                     let noise_term = self.random_noise_magnet();
 
                     // Note that there is a double negative so 1.0 is positive
+                    // IDK why i did it, its only confusing
+                    // But it works so i don't dare to change back
                     let h_eff =
                         1.0 / BOHR_MAGNETRON * (coupling + anisotropy + siemen) + noise_term;
 
@@ -116,8 +118,10 @@ impl MagneticSystem {
             return Magnet::new(0.0, 0.0, 0.0);
         }
         let mut rng = thread_rng();
+        // Using the normal distribution since it is spherically symmetric
         let mut normal = Normal::new(0.0, 1.0).unwrap();
         let mut magnet = Magnet::from_fn(|_, _| normal.sample(&mut rng));
+        magnet.normalize_mut();
 
         let consts = 2.0 * self.dampening_constant * self.temperature
             / (GYROMAGNETIC_RATIO * BOHR_MAGNETRON * self.timestep);

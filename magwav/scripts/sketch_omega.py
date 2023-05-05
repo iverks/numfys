@@ -12,7 +12,12 @@ def plot_omega():
     plt.xlabel("ka")
     plt.ylabel(r"$\omega$")
     plt.legend()
-    # plt.savefig("images/omega_sketch.jpg")
+    # plt.savefig(
+    #     "images/omega_sketch.jpg",
+    #     dpi=200,
+    #     pad_inches=0,
+    #     bbox_inches="tight",
+    # )
 
 
 def main():

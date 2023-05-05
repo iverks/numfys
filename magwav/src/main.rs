@@ -69,17 +69,17 @@ fn task_2_1_1() {
     // let mut sys = MagneticSystem::new_toy(Array3::from_element(1, 1, magnet), 10e-3, 0.0, 1e6);
     let mut sys = MagneticSystem {
         magnets: Array3::from_elem((1, 1, 1), magnet),
-        dampening_constant: 0.0,
+        dampening_constant: 0.1,
         coupling_constant: 0.1,
         anisotropy_constant: 1e-3,
-        temperature: 0.0e-4,
+        temperature: 0.1 * 1e-3,
         magnetic_field: 0.0 * E_Z,
         timestep: 1e-15,
     };
     let mut states = vec![sys.magnets.clone()];
 
     for _ in 0..200 {
-        for _ in 0..1 {
+        for _ in 0..10 {
             sys.step();
         }
         states.push(sys.magnets.clone());
@@ -108,12 +108,12 @@ fn task_2_1_2() {
     // let mut sys = MagneticSystem::new_toy(Array3::from_element(1, 1, magnet), 10e-3, 0.0, 1e6);
     let mut sys = MagneticSystem {
         magnets,
-        dampening_constant: 0.5,
-        coupling_constant: 10e-3,
-        anisotropy_constant: 1e-3,
-        temperature: 0.0,
+        dampening_constant: 0.1,
+        coupling_constant: -10.0 * 1e-3,
+        anisotropy_constant: 3.0 * 1e-3,
+        temperature: 0.1 * 1e-3,
         magnetic_field: 0.0 * E_Z,
-        timestep: 0.1e-15,
+        timestep: 1e-15,
     };
     let mut states = vec![sys.magnets.clone()];
 
@@ -134,10 +134,9 @@ fn task_2_1_3() {
 
     let mut magnets = Array3::from_elem((1, 1, 100), Magnet::new(0.0, 0.0, 1.0));
 
-    // Tilt the central magnet(s)
+    // Tilt the central magnet slightly less than 45 degrees
     magnets[(0, 0, 50)] = Magnet::new(0.9, 0.0, 1.0).normalize();
 
-    // let mut sys = MagneticSystem::new_toy(Array3::from_element(1, 1, magnet), 10e-3, 0.0, 1e6);
     let mut sys = MagneticSystem {
         magnets,
         dampening_constant: 0.0,
@@ -169,20 +168,25 @@ fn task_2_2_2() {
 
     let mut magnets = Array3::from_elem((1, 1, 50), Magnet::new(0.0, 0.0, 1.0));
 
+    let j = -10.0;
+    let dz = 20.0;
+    let a = 0.01;
+
     let mut sys = MagneticSystem {
         magnets,
         dampening_constant: 0.01,
-        coupling_constant: -10.0 * 1e-3,
-        anisotropy_constant: 25e-3,
+        coupling_constant: j * 1e-3,
+        anisotropy_constant: dz * 1e-3,
         temperature: 0.5 * 1e-3,
         magnetic_field: 0.0 * E_Z,
-        timestep: 0.5 * 1e-15,
+        timestep: 0.1 * 1e-15,
     };
     let mut states = vec![sys.magnets.clone()];
     let mut x_components: Vec<Vec<f64>> = vec![sys.magnets.iter().map(|mag| mag.x).collect()];
 
     // 60 000 * 0.5 fs = 30 ps
-    for _ in 0..60000 {
+    // 300 000 * 0.1 fs = 30 ps
+    for _ in 0..300_000 {
         for _ in 0..1 {
             sys.step();
             x_components.push(sys.magnets.iter().map(|mag| mag.x).collect());
@@ -190,10 +194,11 @@ fn task_2_2_2() {
         states.push(sys.magnets.clone());
         // dbg!(&states);
     }
+    println!("Took {:.2} s", start.elapsed().as_millis() as f64 / 1000.0);
 
-    plot_system(&states, "testplot.gif", 100, PlotDirection::Task2_2_2_1).unwrap();
+    // plot_system(&states, "testplot.gif", 100, PlotDirection::Task2_2_2_1).unwrap();
     std::fs::write(
-        "plots/x_components.json",
+        &format!("plots/x_components_J{j:.0}_dz{dz:.0}_a{a}.json"),
         serde_json::to_string_pretty(&x_components).expect("Cant jsonify"),
     )
     .expect("cant write json to file");
@@ -202,78 +207,84 @@ fn task_2_2_2() {
 fn task_2_2_5() {
     let start = Instant::now();
 
-    let mut magnets = Array3::from_elem((1, 1, 50), Magnet::new(0.0, 0.0, 1.0));
+    let j = 10.0;
+    for b in [1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0] {
+        let mut magnets = Array3::from_elem((1, 1, 50), Magnet::new(0.0, 0.0, 1.0));
+        let mut sys = MagneticSystem {
+            magnets,
+            dampening_constant: 0.01,
+            coupling_constant: j * 1e-3,
+            anisotropy_constant: 3.0 * 1e-3,
+            temperature: 0.5 * 1e-3,
+            magnetic_field: b * 1e-3 * E_Z,
+            timestep: 0.1 * 1e-15,
+        };
+        let mut x_components: Vec<Vec<f64>> = vec![sys.magnets.iter().map(|mag| mag.x).collect()];
 
-    let mut sys = MagneticSystem {
-        magnets,
-        dampening_constant: 0.001,
-        coupling_constant: 10.0 * 1e-3,
-        anisotropy_constant: 3e-3,
-        temperature: 0.5 * 1e-3,
-        magnetic_field: 0.11 * E_Z,
-        timestep: 0.5 * 1e-15,
-    };
-    let mut states = vec![sys.magnets.clone()];
-    let mut x_components: Vec<Vec<f64>> = vec![sys.magnets.iter().map(|mag| mag.x).collect()];
-
-    // 60 000 * 0.5 fs = 30 ps
-    for _ in 0..60000 {
-        for _ in 0..1 {
+        // 60 000 * 0.5 fs = 30 ps
+        // 300 000 * 0.1 fs = 30 ps
+        for _ in 0..300_000 {
             sys.step();
             x_components.push(sys.magnets.iter().map(|mag| mag.x).collect());
         }
-        states.push(sys.magnets.clone());
-        // dbg!(&states);
-    }
 
-    plot_system(&states, "testplot.gif", 100, PlotDirection::Task2_2_2_1).unwrap();
-    std::fs::write(
-        "plots/x_w_mag.json",
-        serde_json::to_string_pretty(&x_components).expect("Cant jsonify"),
-    )
-    .expect("cant write json to file");
+        println!(
+            "finished {b} after {:.2}",
+            start.elapsed().as_millis() as f64 / 1000.0
+        );
+
+        // plot_system(&states, "testplot.gif", 100, PlotDirection::Task2_2_2_1).unwrap();
+        std::fs::write(
+            &format!("plots/x_w_mag_j{j}_b{b:.1}.json"),
+            serde_json::to_string_pretty(&x_components).expect("Cant jsonify"),
+        )
+        .expect("cant write json to file");
+    }
 }
 
 fn task_2_2_6() {
     let start = Instant::now();
 
-    let mut magnets = Array3::from_elem((1, 1, 50), Magnet::new(0.0, 0.0, 1.0));
+    let j = -30.0;
+    for b in [0.0, 0.05] {
+        let mut magnets = Array3::from_elem((1, 1, 50), Magnet::new(0.0, 0.0, 1.0));
 
-    for (idx, mut magnet) in magnets.iter_mut().enumerate() {
-        if idx % 2 == 0 {
-            continue;
+        for (idx, mut magnet) in magnets.iter_mut().enumerate() {
+            if idx % 2 == 0 {
+                continue;
+            }
+            magnet.z *= -1.0;
         }
-        magnet.z *= -1.0;
-    }
 
-    let mut sys = MagneticSystem {
-        magnets,
-        dampening_constant: 0.001,
-        coupling_constant: -30.0 * 1e-3,
-        anisotropy_constant: 0.01 * 1e-3,
-        temperature: 0.005 * 1e-3,
-        magnetic_field: 1.5 * E_Z,
-        timestep: 0.5 * 1e-15,
-    };
-    let mut states = vec![sys.magnets.clone()];
-    let mut x_components: Vec<Vec<f64>> = vec![sys.magnets.iter().map(|mag| mag.x).collect()];
+        let mut sys = MagneticSystem {
+            magnets,
+            dampening_constant: 0.01,
+            coupling_constant: j * 1e-3,
+            anisotropy_constant: 0.01 * 1e-3,
+            temperature: 0.005 * 1e-3,
+            magnetic_field: b * j * E_Z,
+            timestep: 0.1 * 1e-15,
+        };
+        let mut states = vec![sys.magnets.clone()];
+        let mut x_components: Vec<Vec<f64>> = vec![sys.magnets.iter().map(|mag| mag.x).collect()];
 
-    // 60 000 * 0.5 fs = 30 ps
-    for _ in 0..60000 {
-        for _ in 0..1 {
+        // 300 000 * 0.1 fs = 30 ps
+        for _ in 0..300_000 {
             sys.step();
             x_components.push(sys.magnets.iter().map(|mag| mag.x).collect());
         }
-        states.push(sys.magnets.clone());
-        // dbg!(&states);
-    }
 
-    plot_system(&states, "testplot.gif", 100, PlotDirection::Task2_2_2_1).unwrap();
-    std::fs::write(
-        "plots/x_afm.json",
-        serde_json::to_string_pretty(&x_components).expect("Cant jsonify"),
-    )
-    .expect("cant write json to file");
+        println!(
+            "finished {b} after {:.2}",
+            start.elapsed().as_millis() as f64 / 1000.0
+        );
+
+        std::fs::write(
+            &format!("plots/x_afm_j{j}_b{b}j.json"),
+            serde_json::to_string_pretty(&x_components).expect("Cant jsonify"),
+        )
+        .expect("cant write json to file");
+    }
 }
 
 fn task_2_3_1() {
@@ -359,15 +370,18 @@ fn task_2_3_3() {
     let start = Instant::now();
     let mut states = HashMap::new();
     for i in 0..=20 {
-        let kbt = i as f64 * 1.0; // 10.0 * 0.1 = 1.0
+        // set kbt relative J using the i loop (it is impossible to loop over a range of floats in rust)
+        let kbt = i as f64 * 1.0; // 20.0 * 0.1 = 2.0 J
         let magnets = Array3::from_elem((20, 20, 20), Magnet::new(0.0, 0.0, 1.0));
+
+        let j = 10.0;
 
         let mut sys = MagneticSystem {
             magnets,
             dampening_constant: 1.0,
-            coupling_constant: 10.0 * 1e-3,
+            coupling_constant: j * 1e-3,
             anisotropy_constant: 10.0 * 1e-3,
-            temperature: kbt * 1e-3,
+            temperature: kbt * j * 1e-3,
             magnetic_field: 0.0 * E_Z,
             timestep: 1.0 * 1e-15,
         };
@@ -375,7 +389,6 @@ fn task_2_3_3() {
         let summy: f64 = sys.magnets.iter().map(|mag| mag.z).sum();
         let mut ms: Vec<f64> = vec![summy / num_mags];
 
-        // 60 000 * 0.5 fs = 30 ps
         for _ in 0..10_000 {
             sys.step();
             let summy: f64 = sys.magnets.iter().map(|mag| mag.z).sum();
@@ -383,12 +396,12 @@ fn task_2_3_3() {
         }
 
         states.insert(format!("{kbt:.2}"), ms);
+
+        println!("Finished kBt {kbt:.2} in {} sec", start.elapsed().as_secs());
     }
 
-    println!("Finished sim in {} sec", start.elapsed().as_secs());
-
     std::fs::write(
-        "plots/avgs_2_3_3_tmp.json",
+        "plots/avgs_2_3_3_10k.json",
         serde_json::to_string(&states).expect("Cant jsonify"),
     )
     .expect("cant write json to file");

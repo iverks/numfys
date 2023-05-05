@@ -25,45 +25,45 @@ def get_Mavg(arr: np.ndarray):
 
 
 def task231():
-    fname = "avgs_2_3_1_tmp"
-    avgs0 = read_file(fname)
-    avgs1 = read_file("avgs_2_3_2")
+    save = True
+    for fname in ["avgs_2_3_1", "avgs_2_3_2"]:
+        t = 0.0 if fname == "avgs_2_3_1" else 0.1
+        avgs = read_file(fname)
 
-    border0, mavg0 = get_Mavg(avgs0)
-    border1, mavg1 = get_Mavg(avgs1)
+        border, mavg = get_Mavg(avgs)
 
-    time = np.arange(0, len(avgs0), 1.0)
+        time = np.arange(0, len(avgs), 1.0)
 
-    fig, ax = plt.subplots()
-    ax.plot(time, avgs0, color="orange", label=r"$k_BT=0.0$")
-    ax.hlines(
-        mavg0,
-        time[border0],
-        time[-1],
-        colors="orange",
-        linestyles="dashed",
-        label=r"Mavg $k_BT=0.0$",
-    )
+        fig, ax = plt.subplots()
+        ax.annotate(
+            f"$J = 10.0 meV$\n$k_B T = {t} J$",
+            (0.1, 1 - 0.1),
+            color="orange",
+            xycoords="axes fraction",
+        )
+        ax.plot(time, avgs, color="green", label=r"$M(T, t)$")
+        ax.hlines(
+            mavg,
+            time[border],
+            time[-1],
+            colors="purple",
+            linestyles="dashed",
+            label=r"$M_{avg}$",
+        )
 
-    ax.plot(time, avgs1, color="blue", label=r"$k_BT=0.1$")
-    ax.hlines(
-        mavg1,
-        time[border1],
-        time[-1],
-        colors="blue",
-        linestyles="dashed",
-        label=r"Mavg $k_BT=0.1$",
-    )
-
-    ax.set_xlabel("time [ns]")
-    ax.set_ylabel("M(T, t)")
-    ax.legend()
-    # plt.savefig(cur_dir / f"../images/2.3/{fname}.jpg", dpi=200)
-    plt.show()
+        ax.set_xlabel("time [ns]")
+        ax.set_ylabel("M(T, t)")
+        ax.legend()
+        if save:
+            plt.savefig(cur_dir / f"../images/2.3/{fname}.jpg", dpi=200)
+            plt.close()
+        else:
+            plt.show()
 
 
 def task233():
-    fname = "avgs_2_3_3_tmp"
+    save = True
+    fname = "avgs_2_3_3_10k"
     with open(cur_dir / f"../plots/{fname}.json", "r") as readfile:
         all_avgs: dict[str, list[float]] = json.load(readfile)
     Ts = []
@@ -77,26 +77,38 @@ def task233():
         time = np.arange(0, len(xs), 1.0)
 
         color = next(ax._get_lines.prop_cycler)["color"]
-        ax.plot(time, xs, label=r"$k_BT =$" + T, color=color)
+        ax.plot(xs, label=r"$k_BT =$" + T, color=color)
         ax.hlines(mavg, border, len(xs), colors=color, linestyles="dashed")
     ax.set_title("J=10 meV, dz=10 meV")
-    ax.set_xlabel("M")
-    ax.set_ylabel("t [ns]")
+    ax.set_xlabel("num timesteps")
+    ax.set_ylabel("M")
     # ax.legend()
-    # plt.savefig(cur_dir / f"../images/2.3/m_per_time.jpg", dpi=200)
-    plt.show()
-    # line = all_avgs["0.00"]
-    # border, mavg = get_Mavg(line)
+    if save:
+        plt.savefig(
+            cur_dir / f"../images/2.3/m_per_time.jpg",
+            dpi=200,
+            pad_inches=0,
+            bbox_inches="tight",
+        )
+        plt.close()
+    else:
+        plt.show()
 
-    # print(Ts)
-    # plt.bar(Ts, avgs)
     plt.plot(Ts, avgs)
     plt.vlines(17, 0.0, 1.0, colors="green")
     plt.title("J=10 meV, dz=10 meV")
     plt.xlabel("T [meV]")
     plt.ylabel("M average")
-    # plt.savefig(cur_dir / f"../images/2.3/mavg_per_T.jpg", dpi=200)
-    plt.show()
+    if save:
+        plt.savefig(
+            cur_dir / f"../images/2.3/mavg_per_T.jpg",
+            dpi=200,
+            pad_inches=0,
+            bbox_inches="tight",
+        )
+        plt.close()
+    else:
+        plt.show()
 
 
 # task231()

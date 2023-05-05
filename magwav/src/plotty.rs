@@ -1,3 +1,10 @@
+/*
+The code in this file is terrible, and the library i use is hard to understand.
+I only use it for plotting the gifs so you dont need to understand it
+To grade my exam :)
+I did learn a lot about what to not do, so that is a good thing.
+*/
+
 use std::{f64::consts::PI, ops::Range};
 
 use crate::system::Magnet;
@@ -31,6 +38,10 @@ pub fn plot_system(
     let (mut miny, mut maxy) = (-1.0, 1.0);
     let (mut minz, mut maxz) = (-1.0, 1.0);
 
+    if let PlotDirection::Task2_1_3 = plot_direction {
+        (minx, maxx) = (-1000.0, 1000.0);
+    }
+
     if let PlotDirection::Task2_3_1 = plot_direction {
         (minx, maxx) = (-10.0, 10.0);
         (miny, maxy) = (-10.0, 10.0);
@@ -58,8 +69,8 @@ pub fn plot_system(
                     p.pitch = PI * 0.5 - 0.01;
                 }
                 PlotDirection::Task2_1_3 => {
-                    p.yaw = 0.1;
-                    p.pitch = PI * 0.5 - 0.01;
+                    p.yaw = 0.0;
+                    p.pitch = PI * 0.5;
                 }
                 PlotDirection::Task2_2_2_1 => {
                     p.yaw = 0.0;
@@ -110,8 +121,9 @@ pub fn plot_system(
                         PlotDirection::Testy => pts.push((x + magnet.x, y + magnet.y, z)),
                         _ => (),
                     }
+
                     chart
-                        .draw_series(LineSeries::new(pts.into_iter(), &ORANGE_600))
+                        .draw_series(LineSeries::new(pts.into_iter(), &ORANGE_600).point_size(3))
                         .unwrap();
                 }
             }
