@@ -1,5 +1,10 @@
 # Readme
 
+To exam graders: 
+- The rust source code is in the src-folder. Business logic happens mostly in system.rs meanwhile system setup happens in main.rs.
+- The python source code in the scripts-folder is what was used to make all plots except for the animations of the magnets. The structure is very messy, sorry for that.
+- I serialized all my data into the plots-folder. Some of the data is garbage from when i had bugs.
+
 ## Notater
 
 - Si is the spin direction

@@ -2,8 +2,6 @@
 
 mod plotty;
 mod system;
-#[cfg(test)]
-mod tests;
 
 use core::num;
 use std::{

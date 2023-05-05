@@ -110,7 +110,7 @@ impl MagneticSystem {
                 }
             }
         }
-        derivatives
+        return derivatives;
     }
 
     fn random_noise_magnet(&self) -> Magnet {
@@ -126,6 +126,6 @@ impl MagneticSystem {
         let consts = 2.0 * self.dampening_constant * self.temperature
             / (GYROMAGNETIC_RATIO * BOHR_MAGNETRON * self.timestep);
         magnet *= consts.sqrt();
-        magnet
+        return magnet;
     }
 }
